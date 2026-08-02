@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  TravelSchedule
-//
-//  Created by Олег Сергеевич on 18.07.2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {
@@ -16,6 +9,16 @@ struct ContentView: View {
             Text("Hello, world!")
         }
         .padding()
+        .onAppear{
+            testFetchStations()
+            testFetchCopyright()
+            testFetchScheduleBetweenStations()
+            testFetchStationSchedule()
+            testFetchRouteStations()
+            testFetchNearestCity()
+            testFetchCarrierInfo()
+            testFetchAllStations()
+        }
     }
 }
 
