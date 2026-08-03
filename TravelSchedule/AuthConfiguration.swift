@@ -1,3 +1,10 @@
+//
+//  AuthConfiguration.swift
+//  TravelSchedule
+//
+//  Created by Олег Сергеевич on 02.08.2026.
+//
+
 import Foundation
 
 enum Constants {
