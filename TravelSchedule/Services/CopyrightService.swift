@@ -16,7 +16,11 @@ protocol CopyrightServiceProtocol {
 
 final class CopyrightService: BaseService, CopyrightServiceProtocol {
     func getCopyright() async throws -> Copyright {
-        let response = try await client.getCopyright(query: .init(apikey: apikey))
-        return try response.ok.body.json
+        do {
+            let response = try await client.getCopyright(query: .init(apikey: apikey))
+            return try response.ok.body.json
+        } catch {
+            throw handleError(error)
+        }
     }
 }

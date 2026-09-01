@@ -599,6 +599,19 @@ components:
           $ref: '#/components/schemas/Station'
         to:
           $ref: '#/components/schemas/Station'
+        departure_from:
+          $ref: '#/components/schemas/Station'
+        arrival_to:
+          $ref: '#/components/schemas/Station'
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
+          description: Список пунктов пересадки
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentDetail'
         departure:
           type: string
           description: Время отправления
@@ -612,6 +625,12 @@ components:
         duration:
           type: integer
           description: Длительность рейса в секундах
+        has_transfers:
+          type: boolean
+          description: Признак наличия пересадок по ходу рейса
+        start_date:
+          type: string
+          description: Дата отправления рейса
     Schedule:
       type: object
       properties:
@@ -859,6 +878,8 @@ components:
     CarrierResponse:
       type: object
       properties:
+        carrier:
+          $ref: '#/components/schemas/Carrier'
         carriers:
           type: array
           items:
@@ -918,4 +939,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Station'
+    Transfer:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        code:
+          type: string
+    SegmentDetail:
+      type: object
+      properties:
+        thread:
+          $ref: '#/components/schemas/Thread'
+        stops:
+          type: string
+        from:
+          $ref: '#/components/schemas/Station'
+        to:
+          $ref: '#/components/schemas/Station'
+        departure:
+          type: string
+        arrival:
+          type: string
+        start_date:
+          type: string
+        is_transfer:
+          type: boolean
+        transfer_from:
+          $ref: '#/components/schemas/Station'
+        transfer_to:
+          $ref: '#/components/schemas/Station'
+        duration:
+          type: integer
 

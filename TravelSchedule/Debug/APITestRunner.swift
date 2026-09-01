@@ -13,14 +13,7 @@ enum APITestRunner {
     static func runAll() async {
         do {
             let tester = try APITester()
-            await tester.testFetchAllStations()
-            await tester.testFetchCarrierInfo()
-            await tester.testFetchCopyright()
-            await tester.testFetchNearestCity()
-            await tester.testFetchStations()
-            await tester.testFetchRouteStations()
-            await tester.testFetchScheduleBetweenStations()
-            await tester.testFetchStationSchedule()
+            await tester.testRawScheduleBetweenStations()
         } catch {
             print("Failed to create TestServices: \(error)")
         }
@@ -140,7 +133,9 @@ final class APITester {
             print("Fetching schedule between stations...")
             let scheduleBetweenStations = try await schedualBetweenStationsService.getSchedualBetweenStations(
                 from: TestData.station,
-                to: TestData.city
+                to: TestData.city,
+                date: "2026-09-02",
+                transfers: true
             )
             print("Successfully fetched schedule between stations: \(scheduleBetweenStations)")
         } catch {
@@ -155,6 +150,37 @@ final class APITester {
             print("Successfully fetched station schedule: \(stationSchedule)")
         } catch {
             print("Error fetching station schedule: \(error)")
+        }
+    }
+
+    func testRawScheduleBetweenStations() async {
+        do {
+            let url = URL(
+                string:
+                    "https://api.rasp.yandex-net.ru/v3.0/search/"+"?apikey= \(configuration.apiKey)"+"&from=s9609235"+"&to=s9613034"+"&date=2026-09-02"+"&transfers=true"
+            )!
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+
+            let (data, response) = try await URLSession.shared.data(
+                for: request
+            )
+
+            print("==== RAW HTTP ====")
+            if let httpResponse = response as? HTTPURLResponse {
+                print("STATUS:", httpResponse.statusCode)
+                print("HEADERS:", httpResponse.allHeaderFields)
+            }
+            print("==== BODY ====")
+            if let json = String(data: data, encoding: .utf8) {
+                print(json)
+            } else {
+                print("Не удалось прочитать body как UTF-8")
+            }
+            print("==== END RAW HTTP ====")
+        } catch {
+            print("RAW HTTP ERROR:", error)
         }
     }
 }
