@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CitySelectionView: View {
-    @StateObject private var viewModel: CitySelectionViewModel
+    @State private var viewModel: CitySelectionViewModel
     @State private var searchString = ""
     @State private var selectedCity: Components.Schemas.Settlement?
 
@@ -26,7 +26,7 @@ struct CitySelectionView: View {
             Components.Schemas.Station
         ) -> Void
     ) {
-        _viewModel = StateObject(
+        _viewModel = State(
             wrappedValue: CitySelectionViewModel(service: service)
         )
         self.onSelect = onSelect
@@ -72,7 +72,7 @@ struct CitySelectionView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image("chevron")
+                    Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
                 }
                 .padding(.leading, -16)
@@ -102,7 +102,7 @@ struct CitySelectionView: View {
 
                     Spacer()
 
-                    Image("chevron")
+                    Image(.chevron)
                         .frame(width: 24, height: 24)
                 }
                 .padding(.horizontal, 16)

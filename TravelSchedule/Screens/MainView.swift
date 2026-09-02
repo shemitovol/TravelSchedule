@@ -13,17 +13,21 @@ struct MainView: View {
     @State private var toStation = ""
     @State private var toStationCode = ""
     @State private var selectedTime: Set<DepartureTimeFilter> = []
-    @State private var selectedTransfers: TransferFilter? = nil
+    @State private var selectedTransfers: TransferFilter?
     @State private var navigationPath = NavigationPath()
 
 
-    private let apiServices = APIServiceContainer()
+    private let apiServices: APIServiceContainer
 
     private enum Route: Hashable {
         case fromCity
         case toCity
         case results
         case filters
+    }
+
+    init(apiServices: APIServiceContainer) {
+        self.apiServices = apiServices
     }
 
     var body: some View {
@@ -35,12 +39,12 @@ struct MainView: View {
                     }
             }
             .tabItem {
-                Label("", image: "mainScreenTab")
+                Label("", image: .mainScreenTab)
             }
 
             SettingsView()
                 .tabItem {
-                    Label("", image: "settingsScreenTab")
+                    Label("", image: .settingsScreenTab)
                 }
         }
         .tint(Color.ypBlack)
@@ -67,21 +71,21 @@ struct MainView: View {
                     fromCityButton
                     toCityButton
                 }
-                .cornerRadius(20)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 Button(action: swapStations) {
-                    Image("return")
+                    Image(.return)
                         .frame(minWidth: 36, minHeight: 36)
                 }
                 .background(Color.ypWhiteDay)
-                .cornerRadius(40)
+                .clipShape(RoundedRectangle(cornerRadius: 40))
                 .frame(minWidth: 36, minHeight: 36)
             }
             .padding(16)
         }
         .frame(maxWidth: .infinity, maxHeight: 128)
         .background(Color.ypBlue)
-        .cornerRadius(20)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 
     private var fromCityButton: some View {
@@ -149,7 +153,7 @@ struct MainView: View {
         }
         .frame(maxWidth: 150, maxHeight: 60)
         .background(Color.ypBlue)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
     @ViewBuilder
@@ -175,7 +179,7 @@ struct MainView: View {
 
         case .results:
             SearchRoutesView(
-                service: apiServices.schedualBetweenStationsService,
+                service: apiServices.scheduleBetweenStationsService,
                 carrierInfoService: apiServices.carrierInfoService,
                 fromStation: fromStation,
                 toStation: toStation,
@@ -206,5 +210,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    RootView()
 }

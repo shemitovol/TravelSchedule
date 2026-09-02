@@ -10,32 +10,28 @@ import OpenAPIURLSession
 
 final class APIServiceContainer {
     let allStationsService: AllStationsServiceProtocol
-    let schedualBetweenStationsService: SchedualBetweenStationsServiceProtocol
+    let scheduleBetweenStationsService: ScheduleBetweenStationsServiceProtocol
     let carrierInfoService: CarrierInfoServiceProtocol
 
-    init() {
-        do {
-            let client = Client(
-                serverURL: try Servers.Server1.url(),
-                transport: URLSessionTransport()
-            )
+    init() throws {
+        let client = Client(
+            serverURL: try Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
 
-            let configuration = AuthConfiguration.standard
+        let configuration = AuthConfiguration.standard
 
-            self.allStationsService = AllStationsService(
-                client: client,
-                apikey: configuration.apiKey
-            )
-            self.schedualBetweenStationsService = SchedualBetweenStationsService(
-                client: client,
-                apikey: configuration.apiKey
-            )
-            self.carrierInfoService = CarrierInfoService(
-                client: client,
-                apikey: configuration.apiKey
-            )
-        } catch {
-            fatalError("Не удалось создать API Client: \(error)")
-        }
+        self.allStationsService = AllStationsService(
+            client: client,
+            apikey: configuration.apiKey
+        )
+        self.scheduleBetweenStationsService = ScheduleBetweenStationsService(
+            client: client,
+            apikey: configuration.apiKey
+        )
+        self.carrierInfoService = CarrierInfoService(
+            client: client,
+            apikey: configuration.apiKey
+        )
     }
 }

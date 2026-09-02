@@ -5,13 +5,14 @@
 //  Created by Олег Сергеевич on 25.08.2026.
 //
 
-import Combine
+import Observation
 
 @MainActor
-final class CitySelectionViewModel: ObservableObject {
-    @Published var cities: [Components.Schemas.Settlement] = []
-    @Published var isLoading = false
-    @Published var error: AppError?
+@Observable
+final class CitySelectionViewModel {
+    var cities: [Components.Schemas.Settlement] = []
+    var isLoading = false
+    var error: AppError?
 
     private let service: AllStationsServiceProtocol
 

@@ -1,5 +1,5 @@
 //
-//  SchedualBetweenStationsService.swift
+//  ScheduleBetweenStationsService.swift
 //  TravelSchedule
 //
 //  Created by Олег Сергеевич on 02.08.2026.
@@ -8,16 +8,16 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias SchedualBetweenStations = Components.Schemas.Segments
+typealias ScheduleBetweenStations = Components.Schemas.Segments
 
-protocol SchedualBetweenStationsServiceProtocol {
-    func getSchedualBetweenStations(from: String, to: String, date: String, transfers: Bool) async throws -> SchedualBetweenStations
+protocol ScheduleBetweenStationsServiceProtocol {
+    func getScheduleBetweenStations(from: String, to: String, date: String, transfers: Bool) async throws -> ScheduleBetweenStations
 }
 
-final class SchedualBetweenStationsService: BaseService, SchedualBetweenStationsServiceProtocol {
-    func getSchedualBetweenStations(from: String, to: String, date: String, transfers: Bool) async throws -> SchedualBetweenStations {
+final class ScheduleBetweenStationsService: BaseService, ScheduleBetweenStationsServiceProtocol {
+    func getScheduleBetweenStations(from: String, to: String, date: String, transfers: Bool) async throws -> ScheduleBetweenStations {
         do {
-            let response = try await client.getSchedualBetweenStations(query: .init(
+            let response = try await client.getScheduleBetweenStations(query: .init(
                 apikey: apikey,
                 from: from,
                 to: to,

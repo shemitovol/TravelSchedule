@@ -19,19 +19,19 @@ struct NetworkErrorView: View {
         VStack {
             switch errorType {
             case .network:
-                Image("noInternet")
+                Image(.noInternet)
                     .resizable()
                     .frame(width: 223, height: 223)
-                    .cornerRadius(70)
+                    .clipShape(RoundedRectangle(cornerRadius: 70))
 
                 Text("Нет интернета")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(Color.ypBlack)
             case .server:
-                Image("serverError")
+                Image(.serverError)
                     .resizable()
                     .frame(width: 223, height: 223)
-                    .cornerRadius(70)
+                    .clipShape(RoundedRectangle(cornerRadius: 70))
 
                 Text("Ошибка сервера")
                     .font(.system(size: 24, weight: .bold))

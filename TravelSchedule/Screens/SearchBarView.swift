@@ -12,6 +12,11 @@ struct SearchBarView: View {
     @State private var isSearching = false
     var placeholder = "Введите запрос"
 
+    private enum SearchBarSystemImages {
+        static let magnifyingglassImage = "magnifyingglass"
+        static let xmarkCircleFillImage = "xmark.circle.fill"
+    }
+
     var body: some View {
         HStack (spacing: 0) {
             HStack (spacing: 0) {
@@ -21,19 +26,23 @@ struct SearchBarView: View {
                     .autocorrectionDisabled(true)
                     .autocapitalization(.none)
                     .padding(.leading, 33)
-                    .cornerRadius(16)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .onTapGesture{
                         isSearching = true
                     }
                     .overlay(
                         HStack {
                             if isSearching && searchText.count > 0 {
-                                Image(systemName: "magnifyingglass")
+                                Image(
+                                    systemName: SearchBarSystemImages.magnifyingglassImage
+                                )
                                     .resizable()
                                     .frame(width: 17, height: 17)
                                     .foregroundColor(.ypBlack)
                             } else {
-                                Image(systemName: "magnifyingglass")
+                                Image(
+                                    systemName: SearchBarSystemImages.magnifyingglassImage
+                                )
                                     .resizable()
                                     .frame(width: 17, height: 17)
                                     .foregroundColor(.gray)
@@ -41,11 +50,16 @@ struct SearchBarView: View {
                             Spacer()
 
                             if isSearching && searchText.count > 0 {
-                                Button(action: { searchText = "" }, label: {
-                                    Image(systemName: "xmark.circle.fill")
+                                Button(
+                                    action: { searchText = ""
+                                    },
+                                    label: {
+                                        Image(
+                                            systemName: SearchBarSystemImages.xmarkCircleFillImage
+                                        )
                                         .foregroundColor(.gray)
                                         .padding(.vertical)
-                                })
+                                    })
 
                             }
 
@@ -55,7 +69,7 @@ struct SearchBarView: View {
             }
             .frame(height: 36)
             .background(Color.ypSearch)
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(height: 37)
         .padding(.horizontal, 16)

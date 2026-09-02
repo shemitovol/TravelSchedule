@@ -43,7 +43,7 @@ struct StationSelectionView: View {
                                 .foregroundStyle(Color.ypBlack)
                                 .font(.system(size: 17, weight: .regular))
                             Spacer()
-                            Image("chevron")
+                            Image(.chevron)
                                 .foregroundStyle(Color.ypBlack)
                                 .frame(width: 24, height: 24)
                         }
@@ -68,7 +68,7 @@ struct StationSelectionView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image("chevron")
+                    Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
                 }
                 .padding(.leading, -16)

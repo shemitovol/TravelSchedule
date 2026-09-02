@@ -5,17 +5,18 @@
 //  Created by Олег Сергеевич on 27.08.2026.
 //
 
-import Combine
+import Observation
 import Foundation
 
 @MainActor
-final class SearchRoutesViewModel: ObservableObject {
+@Observable
+final class SearchRoutesViewModel {
 
-    @Published var isLoading = false
-    @Published var error: AppError?
-    @Published var routes: [Route] = []
+    var isLoading = false
+    var error: AppError?
+    var routes: [Route] = []
 
-    private let service: SchedualBetweenStationsServiceProtocol
+    private let service: ScheduleBetweenStationsServiceProtocol
     private let carrierInfoService: CarrierInfoServiceProtocol
 
     // MARK: - Route
@@ -67,12 +68,16 @@ final class SearchRoutesViewModel: ObservableObject {
             ]
             return formatter
         }()
+
+        static func date(from string: String) -> Date? {
+            isoFormatter.date(from: string)
+        }
     }
 
     // MARK: - Init
 
     init(
-        service: SchedualBetweenStationsServiceProtocol,
+        service: ScheduleBetweenStationsServiceProtocol,
         carrierInfoService: CarrierInfoServiceProtocol
     ) {
         self.service = service
@@ -88,7 +93,7 @@ final class SearchRoutesViewModel: ObservableObject {
 
         do {
             let today = Self.currentDateString()
-            let response = try await service.getSchedualBetweenStations(
+            let response = try await service.getScheduleBetweenStations(
                 from: from,
                 to: to,
                 date: today,
@@ -136,12 +141,8 @@ final class SearchRoutesViewModel: ObservableObject {
             }
             routes = newRoutes.sorted {
                 guard
-                    let firstArrival = ISO8601DateFormatter().date(
-                        from: $0.arrival
-                    ),
-                    let secondArrival = ISO8601DateFormatter().date(
-                        from: $1.arrival
-                    )
+                    let firstArrival = Route.date(from: $0.arrival),
+                    let secondArrival = Route.date(from: $1.arrival)
                 else {
                     return false
                 }

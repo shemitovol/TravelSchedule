@@ -88,9 +88,9 @@ paths:
   /v3.0/search/:
     get:
       tags:
-        - getSchedualBetweenStations
+        - getScheduleBetweenStations
       summary: Расписание рейсов между станциями
-      operationId: getSchedualBetweenStations
+      operationId: getScheduleBetweenStations
       parameters:
         - name: apikey
           in: query

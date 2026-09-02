@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchRoutesView: View {
-    @StateObject private var viewModel: SearchRoutesViewModel
+    @State private var viewModel: SearchRoutesViewModel
 
     @Environment(\.dismiss) private var dismiss
 
@@ -27,7 +27,7 @@ struct SearchRoutesView: View {
     }
 
     init(
-        service: SchedualBetweenStationsServiceProtocol,
+        service: ScheduleBetweenStationsServiceProtocol,
         carrierInfoService: CarrierInfoServiceProtocol,
         fromStation: String,
         toStation: String,
@@ -37,7 +37,7 @@ struct SearchRoutesView: View {
         selectedTransfers: TransferFilter?,
         onShowFilters: @escaping () -> Void
     ) {
-        _viewModel = StateObject(
+        _viewModel = State(
             wrappedValue: SearchRoutesViewModel(
                 service: service,
                 carrierInfoService: carrierInfoService
@@ -65,9 +65,7 @@ struct SearchRoutesView: View {
                     maxWidth: .infinity,
                     alignment: .leading
                 )
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 16)
+                .padding(16)
 
             if viewModel.isLoading {
                 Spacer()
@@ -94,7 +92,7 @@ struct SearchRoutesView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image("chevron")
+                    Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
                 }
                 .padding(.leading, -16)
@@ -167,7 +165,7 @@ struct SearchRoutesView: View {
                     maxHeight: 60
                 )
                 .background(Color.ypBlue)
-                .cornerRadius(16)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 16)
             }
         }
@@ -215,7 +213,7 @@ struct SearchRoutesView: View {
                         width: 38,
                         height: 38
                     )
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
 
                 VStack(
@@ -333,13 +331,12 @@ struct SearchRoutesView: View {
                         alignment: .trailing
                     )
             }
-            .padding(.horizontal, 14)
-            .padding(.bottom, 14)
+            .padding([.horizontal, .bottom], 14)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 104)
         .background(Color.ypLightGray)
-        .cornerRadius(24)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 
     // MARK: - Carrier Logo
@@ -421,7 +418,7 @@ struct SearchRoutesView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Color.ypBlue)
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
         }
@@ -430,7 +427,7 @@ struct SearchRoutesView: View {
     // MARK: - Logo Placeholder
 
     private var logoChecker: some View {
-        Image("logoChecker")
+        Image(.logoChecker)
             .resizable()
             .scaledToFit()
     }
@@ -516,7 +513,7 @@ struct SearchRoutesView: View {
 /*
 #Preview {
     SearchRoutesView(
-        service:  APIServiceContainer().schedualBetweenStationsService,
+        service:  APIServiceContainer().scheduleBetweenStationsService,
         fromStation: "Челябинск-Главный",
         toStation: "Санкт-Петербург (Московский вокзал)",
         fromStationCode: "s9609235",

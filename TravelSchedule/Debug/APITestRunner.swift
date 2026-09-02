@@ -43,13 +43,24 @@ final class APITester {
         static let city = "c146"
     }
 
+    enum HTTPMethod: String {
+        case get = "GET"
+        case post = "POST"
+        case put = "PUT"
+        case delete = "DELETE"
+    }
+
+    enum APIConstants {
+        static let baseURL = "https://api.rasp.yandex-net.ru/v3.0/search/"
+    }
+
     private lazy var allStationsService = AllStationsService(client: client, apikey: configuration.apiKey)
     private lazy var carrierInfoService = CarrierInfoService(client: client, apikey: configuration.apiKey)
     private lazy var copyrightService = CopyrightService(client: client, apikey: configuration.apiKey)
     private lazy var nearestCityService = NearestCityService(client: client, apikey: configuration.apiKey)
     private lazy var nearestStationsService = NearestStationsService(client: client, apikey: configuration.apiKey)
     private lazy var routeStationsService = RouteStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var schedualBetweenStationsService = SchedualBetweenStationsService(client: client, apikey: configuration.apiKey)
+    private lazy var scheduleBetweenStationsService = ScheduleBetweenStationsService(client: client, apikey: configuration.apiKey)
     private lazy var stationScheduleService = StationScheduleService(client: client, apikey: configuration.apiKey)
 
     //MARK: - Public Methods
@@ -131,7 +142,7 @@ final class APITester {
     func testFetchScheduleBetweenStations() async {
         do {
             print("Fetching schedule between stations...")
-            let scheduleBetweenStations = try await schedualBetweenStationsService.getSchedualBetweenStations(
+            let scheduleBetweenStations = try await scheduleBetweenStationsService.getScheduleBetweenStations(
                 from: TestData.station,
                 to: TestData.city,
                 date: "2026-09-02",
@@ -157,11 +168,17 @@ final class APITester {
         do {
             let url = URL(
                 string:
-                    "https://api.rasp.yandex-net.ru/v3.0/search/"+"?apikey= \(configuration.apiKey)"+"&from=s9609235"+"&to=s9613034"+"&date=2026-09-02"+"&transfers=true"
+                    "\(APIConstants.baseURL)" +
+                "?apikey= \(configuration.apiKey)" +
+                "&from=s9609235" +
+                "&to=s9613034" +
+                "&date=2026-09-02" +
+                "&transfers=true"
             )!
 
             var request = URLRequest(url: url)
-            request.httpMethod = "GET"
+
+            request.httpMethod = HTTPMethod.get.rawValue
 
             let (data, response) = try await URLSession.shared.data(
                 for: request

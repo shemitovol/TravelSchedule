@@ -5,6 +5,7 @@
 //  Created by Олег Сергеевич on 03.08.2026.
 //
 import Foundation
+import OpenAPIRuntime
 
 enum AppError: Error {
     case network
@@ -21,18 +22,11 @@ class BaseService {
     }
 
     func handleError(_ error: Error) -> AppError {
-        if let urlError = error as? URLError {
-            switch urlError.code {
-            case .notConnectedToInternet,
-                    .networkConnectionLost,
-                    .timedOut,
-                    .cannotConnectToHost,
-                    .cannotFindHost:
-                return .network
-            default:
-                return .network
-            }
+        if let clientError = error as? ClientError,
+           clientError.underlyingError is URLError {
+            return .network
         }
+
         return .server
     }
 }

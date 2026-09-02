@@ -106,7 +106,7 @@ struct FiltersView: View {
                             .font(.system(size: 17, weight: .regular))
                         Spacer()
                         Image(
-                            selectedTime.contains(filter) ? "checkBoxOn" : "checkBoxOff"
+                            selectedTime.contains(filter) ? .checkBoxOn : .checkBoxOff
                         )
                             .foregroundStyle(Color.ypBlack)
                     }
@@ -130,7 +130,7 @@ struct FiltersView: View {
                             .foregroundStyle(Color.ypBlack)
                             .font(.system(size: 17, weight: .regular))
                         Spacer()
-                        Image(selectedTransfers == filter ? "radioButtonOn" : "radioButtonOff")
+                        Image(selectedTransfers == filter ? .radioButtonOn : .radioButtonOff)
                             .foregroundStyle(Color.ypBlack)
                     }
                     .frame(height: 60)
@@ -148,7 +148,7 @@ struct FiltersView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: 60)
             .background(Color.ypBlue)
-            .cornerRadius(16)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -160,7 +160,7 @@ struct FiltersView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image("chevron")
+                    Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
                 }
                 .padding(.leading, -16)
