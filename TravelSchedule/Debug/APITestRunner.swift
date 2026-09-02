@@ -13,14 +13,7 @@ enum APITestRunner {
     static func runAll() async {
         do {
             let tester = try APITester()
-            await tester.testFetchAllStations()
-            await tester.testFetchCarrierInfo()
-            await tester.testFetchCopyright()
-            await tester.testFetchNearestCity()
-            await tester.testFetchStations()
-            await tester.testFetchRouteStations()
-            await tester.testFetchScheduleBetweenStations()
-            await tester.testFetchStationSchedule()
+            await tester.testRawScheduleBetweenStations()
         } catch {
             print("Failed to create TestServices: \(error)")
         }
@@ -50,13 +43,24 @@ final class APITester {
         static let city = "c146"
     }
 
+    enum HTTPMethod: String {
+        case get = "GET"
+        case post = "POST"
+        case put = "PUT"
+        case delete = "DELETE"
+    }
+
+    enum APIConstants {
+        static let baseURL = "https://api.rasp.yandex-net.ru/v3.0/search/"
+    }
+
     private lazy var allStationsService = AllStationsService(client: client, apikey: configuration.apiKey)
     private lazy var carrierInfoService = CarrierInfoService(client: client, apikey: configuration.apiKey)
     private lazy var copyrightService = CopyrightService(client: client, apikey: configuration.apiKey)
     private lazy var nearestCityService = NearestCityService(client: client, apikey: configuration.apiKey)
     private lazy var nearestStationsService = NearestStationsService(client: client, apikey: configuration.apiKey)
     private lazy var routeStationsService = RouteStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var schedualBetweenStationsService = SchedualBetweenStationsService(client: client, apikey: configuration.apiKey)
+    private lazy var scheduleBetweenStationsService = ScheduleBetweenStationsService(client: client, apikey: configuration.apiKey)
     private lazy var stationScheduleService = StationScheduleService(client: client, apikey: configuration.apiKey)
 
     //MARK: - Public Methods
@@ -138,9 +142,11 @@ final class APITester {
     func testFetchScheduleBetweenStations() async {
         do {
             print("Fetching schedule between stations...")
-            let scheduleBetweenStations = try await schedualBetweenStationsService.getSchedualBetweenStations(
+            let scheduleBetweenStations = try await scheduleBetweenStationsService.getScheduleBetweenStations(
                 from: TestData.station,
-                to: TestData.city
+                to: TestData.city,
+                date: "2026-09-02",
+                transfers: true
             )
             print("Successfully fetched schedule between stations: \(scheduleBetweenStations)")
         } catch {
@@ -155,6 +161,43 @@ final class APITester {
             print("Successfully fetched station schedule: \(stationSchedule)")
         } catch {
             print("Error fetching station schedule: \(error)")
+        }
+    }
+
+    func testRawScheduleBetweenStations() async {
+        do {
+            let url = URL(
+                string:
+                    "\(APIConstants.baseURL)" +
+                "?apikey= \(configuration.apiKey)" +
+                "&from=s9609235" +
+                "&to=s9613034" +
+                "&date=2026-09-02" +
+                "&transfers=true"
+            )!
+
+            var request = URLRequest(url: url)
+
+            request.httpMethod = HTTPMethod.get.rawValue
+
+            let (data, response) = try await URLSession.shared.data(
+                for: request
+            )
+
+            print("==== RAW HTTP ====")
+            if let httpResponse = response as? HTTPURLResponse {
+                print("STATUS:", httpResponse.statusCode)
+                print("HEADERS:", httpResponse.allHeaderFields)
+            }
+            print("==== BODY ====")
+            if let json = String(data: data, encoding: .utf8) {
+                print(json)
+            } else {
+                print("Не удалось прочитать body как UTF-8")
+            }
+            print("==== END RAW HTTP ====")
+        } catch {
+            print("RAW HTTP ERROR:", error)
         }
     }
 }

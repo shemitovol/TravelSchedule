@@ -16,10 +16,14 @@ protocol StationScheduleServiceProtocol {
 
 final class StationScheduleService: BaseService, StationScheduleServiceProtocol {
     func getStationSchedule(station: String) async throws -> StationSchedule {
-        let response = try await client.getStationSchedule(query: .init(
-            apikey: apikey,
-            station: station
-        ))
-        return try response.ok.body.json
+        do {
+            let response = try await client.getStationSchedule(query: .init(
+                apikey: apikey,
+                station: station
+            ))
+            return try response.ok.body.json
+        } catch {
+            throw handleError(error)
+        }
     }
 }

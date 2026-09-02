@@ -16,10 +16,14 @@ protocol RouteStationsServiceProtocol {
 
 final class RouteStationsService: BaseService, RouteStationsServiceProtocol {
     func getRouteStations(uid: String) async throws -> RouteStations {
-        let response = try await client.getRouteStations(query: .init(
-            apikey: apikey,
-            uid: uid
-        ))
-        return try response.ok.body.json
+        do {
+            let response = try await client.getRouteStations(query: .init(
+                apikey: apikey,
+                uid: uid
+            ))
+            return try response.ok.body.json
+        } catch {
+            throw handleError(error)
+        }
     }
 }
