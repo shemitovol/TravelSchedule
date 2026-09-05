@@ -34,7 +34,7 @@ struct StationSelectionView: View {
                     .foregroundStyle(Color.ypBlack)
                     .font(.bold24)
             } else {
-                List (searchResults, id: \.self) { station in
+                List(searchResults, id: \.self) { station in
                     Button {
                         onSelect(station)
                     } label: {

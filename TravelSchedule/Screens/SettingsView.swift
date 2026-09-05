@@ -9,12 +9,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var isDarkMode: Bool
-    @Environment(\.colorScheme) private var colorSheme
     let onUserAgreement: () -> Void
 
     var body: some View {
         VStack {
-            VStack (spacing: 0) {
+            VStack(spacing: 0) {
                 HStack {
                     Text("Темная тема")
                         .foregroundStyle(Color.ypBlack)
@@ -45,7 +44,7 @@ struct SettingsView: View {
 
             Spacer()
 
-            VStack (spacing: 16) {
+            VStack(spacing: 16) {
                 Text("Приложение использует API «Яндекс.Расписания»")
                 Text("Версия 1.0 (beta)")
             }

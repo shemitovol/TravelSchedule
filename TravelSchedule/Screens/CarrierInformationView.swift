@@ -62,8 +62,8 @@ struct CarrierInformationView: View {
 
                 if !phone.isEmpty {
                     HStack {
-                        VStack (alignment: .leading) {
-                            Text("Phone")
+                        VStack(alignment: .leading) {
+                            Text("Телефон")
                                 .font(.regular17)
                             Text(phone)
                                 .font(.regular12)

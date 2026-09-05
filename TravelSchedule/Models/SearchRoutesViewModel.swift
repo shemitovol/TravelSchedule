@@ -166,11 +166,15 @@ final class SearchRoutesViewModel {
         isLoading = false
     }
 
-    // MARK: - Today's Date
+    //MARK: - Today's Date Formatter
 
-    private static func currentDateString() -> String {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        return formatter
+    }()
+
+    private static func currentDateString() -> String {
+        dateFormatter.string(from: Date())
     }
 }

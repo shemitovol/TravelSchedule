@@ -9,6 +9,7 @@ import SwiftUI
 import WebKit
 
 struct UserAgreementView: View {
+    @State private var hasError = false
     @State private var isLoading = true
     @Environment(\.dismiss) private var dismiss
 
@@ -17,15 +18,37 @@ struct UserAgreementView: View {
     var body: some View {
         if let url = URL(string: urlString) {
             ZStack {
-                WebView(url: url, isLoading: $isLoading)
-                    .ignoresSafeArea(edges: .bottom)
+                if hasError {
+                    VStack(spacing: 16) {
+                        Text("Не удалось загрузить страницу")
+                            .font(.regular17)
+                            .foregroundStyle(Color.ypBlack)
 
-                if isLoading {
-                    ProgressView()
-                        .tint(Color.ypBlackDay)
+                        Button("Повторить") {
+                            hasError = false
+                            isLoading = true
+                        }
+                        .font(.bold17)
+                        .foregroundStyle(Color.ypWhiteDay)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color.ypBlue)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(16)
+                } else {
+                    WebView(url: url, isLoading: $isLoading, hasError: $hasError)
+                        .ignoresSafeArea(edges: .bottom)
+
+                    if isLoading {
+                        ProgressView()
+                            .tint(Color.ypBlackDay)
+                    }
                 }
             }
             .navigationTitle("Пользовательское соглашение")
+            .toolbar(.hidden, for: .tabBar)
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(
                 leading:
@@ -46,9 +69,10 @@ struct UserAgreementView: View {
 private struct WebView: UIViewRepresentable {
     let url: URL
     @Binding var isLoading: Bool
+    @Binding var hasError: Bool
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isLoading: $isLoading)
+        Coordinator(isLoading: $isLoading, hasError: $hasError)
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -64,9 +88,11 @@ private struct WebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         private let isLoading: Binding<Bool>
+        private let hasError: Binding<Bool>
 
-        init(isLoading: Binding<Bool>) {
+        init(isLoading: Binding<Bool>, hasError: Binding<Bool>) {
             self.isLoading = isLoading
+            self.hasError = hasError
         }
 
         func webView(
@@ -74,6 +100,7 @@ private struct WebView: UIViewRepresentable {
             didStartProvisionalNavigation navigation: WKNavigation?
         ) {
             isLoading.wrappedValue = true
+            hasError.wrappedValue = false
         }
 
         func webView(
@@ -81,6 +108,24 @@ private struct WebView: UIViewRepresentable {
             didFinish navigation: WKNavigation?
         ) {
             isLoading.wrappedValue = false
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            didFail navigation: WKNavigation?,
+            withError: Error
+        ) {
+            isLoading.wrappedValue = false
+            hasError.wrappedValue = true
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            didFailProvisionalNavigation navigation: WKNavigation?,
+            withError: Error
+        ) {
+            isLoading.wrappedValue = false
+            hasError.wrappedValue = true
         }
     }
 }

@@ -24,19 +24,20 @@ final class StoriesViewModel {
         }
     }
 
-    private(set) var progress: CGFloat = 0
-
     var currentStory: Story { stories[currentStoryIndex] }
+    var currentStoryIndex: Int { Int(progress * CGFloat(stories.count)) }
     let stories: [Story]
     private let configuration: Configuration
     private var timer: Timer.TimerPublisher?
     private var timerConnection: Cancellable?
     private var cancellable: Cancellable?
-    private var currentStoryIndex: Int{ Int(progress * CGFloat(stories.count)) }
 
-    init(stories: [Story] = Story.stories) {
+    private(set) var progress: CGFloat = 0
+
+    init(stories: [Story] = Story.stories, initialIndex: Int = 0) {
         self.stories = stories
         self.configuration = Configuration(storiesCount: stories.count)
+        progress = CGFloat(initialIndex) / CGFloat(stories.count)
     }
 
     func start() {
@@ -64,6 +65,16 @@ final class StoriesViewModel {
         : 0
         withAnimation {
             progress = CGFloat(nextStoryIndex) / CGFloat(stories.count)
+        }
+        resetTimer()
+    }
+
+    func previousStory() {
+        let previousStoryIndex = currentStoryIndex > 0
+        ? currentStoryIndex - 1
+        : stories.count - 1
+        withAnimation {
+            progress = CGFloat(previousStoryIndex) / CGFloat(stories.count)
         }
         resetTimer()
     }

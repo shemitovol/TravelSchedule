@@ -26,6 +26,13 @@ struct SearchRoutesView: View {
     private var filtersAreActive: Bool {
         !selectedTime.isEmpty || selectedTransfers != nil
     }
+    private let isoDateFormatter = ISO8601DateFormatter()
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM"
+        return formatter
+    }()
 
     init(
         service: ScheduleBetweenStationsServiceProtocol,
@@ -64,10 +71,7 @@ struct SearchRoutesView: View {
             Text("\(fromStation) → \(toStation)")
                 .foregroundStyle(Color.ypBlack)
                 .font(.bold24)
-                .frame(
-                    maxWidth: .infinity,
-                    alignment: .leading
-                )
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
 
             if viewModel.isLoading {
@@ -84,10 +88,7 @@ struct SearchRoutesView: View {
                 routesContent
             }
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .toolbar(.hidden, for: .tabBar)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(
@@ -130,10 +131,7 @@ struct SearchRoutesView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .frame(
-                maxWidth: .infinity,
-                maxHeight: .infinity
-            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .safeAreaInset(edge: .bottom) {
                 Button(action: specifyTime) {
                     HStack(spacing: 8) {
@@ -144,13 +142,13 @@ struct SearchRoutesView: View {
                         if filtersAreActive {
                             Circle()
                                 .fill(Color.ypRed)
-                                .frame( width: 8, height: 8)
+                                .frame(width: 8, height: 8)
                         }
                     }
                     .frame(height: 60)
                     .frame(maxWidth: .infinity)
                 }
-                .frame( maxWidth: .infinity, maxHeight: 60)
+                .frame(maxWidth: .infinity, maxHeight: 60)
                 .background(Color.ypBlue)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 16)
@@ -193,29 +191,18 @@ struct SearchRoutesView: View {
         _ route: SearchRoutesViewModel.Route
     ) -> some View {
         VStack(spacing: 0) {
-            HStack (alignment: .top){
-
+            HStack(alignment: .top) {
                 carrierLogo(for: route)
-                    .frame(
-                        width: 38,
-                        height: 38
-                    )
+                    .frame(width: 38, height: 38)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
 
-                VStack(
-                    alignment: .leading,
-                    spacing: 2
-                ) {
-
+                VStack(alignment: .leading, spacing: 2) {
                     if let carrierTitle = route.carrierTitle,
                        !carrierTitle.isEmpty {
-
                         Text(carrierTitle)
                             .font(.regular17)
-                            .foregroundStyle(
-                                Color.ypBlackDay
-                            )
+                            .foregroundStyle(Color.ypBlackDay)
                     }
 
                     if route.isTransfer {
@@ -224,9 +211,7 @@ struct SearchRoutesView: View {
                         } ?? "С пересадкой"
                         )
                         .font(.regular12)
-                        .foregroundStyle(
-                            Color.ypRed
-                        )
+                        .foregroundStyle(Color.ypRed)
                     }
                 }
 
@@ -234,9 +219,7 @@ struct SearchRoutesView: View {
 
                 Text(formatDate(route.arrival))
                     .font(.regular12)
-                    .foregroundStyle(
-                        Color.ypBlackDay
-                    )
+                    .foregroundStyle(Color.ypBlackDay)
                     .padding(.trailing, -8)
                     .frame(alignment: .trailing)
             }
@@ -249,29 +232,18 @@ struct SearchRoutesView: View {
 
                 Text(formatTime(route.departure))
                     .font(.regular17)
-                    .foregroundStyle(
-                        Color.ypBlackDay
-                    )
-                    .frame(
-                        minWidth: 48,
-                        alignment: .leading
-                    )
+                    .foregroundStyle( Color.ypBlackDay)
+                    .frame(minWidth: 48, alignment: .leading)
 
                 Rectangle()
                     .fill(Color.ypGray)
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
 
-                Text(
-                    formatDuration(
-                        route.totalDuration
-                    )
-                )
-                .font(.regular12)
-                .foregroundStyle(
-                    Color.ypBlackDay
-                )
-                .fixedSize()
+                Text(formatDuration(route.totalDuration))
+                    .font(.regular12)
+                    .foregroundStyle(Color.ypBlackDay)
+                    .fixedSize()
 
                 Rectangle()
                     .fill(Color.ypGray)
@@ -280,13 +252,8 @@ struct SearchRoutesView: View {
 
                 Text(formatTime(route.arrival))
                     .font(.regular17)
-                    .foregroundStyle(
-                        Color.ypBlackDay
-                    )
-                    .frame(
-                        minWidth: 48,
-                        alignment: .trailing
-                    )
+                    .foregroundStyle(Color.ypBlackDay)
+                    .frame(minWidth: 48, alignment: .trailing)
             }
             .padding([.horizontal, .bottom], 14)
         }
@@ -306,10 +273,8 @@ struct SearchRoutesView: View {
         if let logo = route.carrierLogo,
            !logo.isEmpty,
            let url = URL(string: logo) {
-
             AsyncImage(url: url) { phase in
                 switch phase {
-
                 case .empty:
                     logoChecker
 
@@ -347,17 +312,12 @@ struct SearchRoutesView: View {
                 HStack(spacing: 8) {
                     Text("Уточнить время")
                         .font(.bold17)
-                        .foregroundStyle(
-                            Color.ypWhiteDay
-                        )
+                        .foregroundStyle(Color.ypWhiteDay)
 
                     if filtersAreActive {
                         Circle()
                             .fill(Color.ypRed)
-                            .frame(
-                                width: 8,
-                                height: 8
-                            )
+                            .frame(width: 8, height: 8)
                     }
                 }
                 .frame(height: 60)
@@ -389,15 +349,11 @@ struct SearchRoutesView: View {
     private func formatTime(
         _ dateString: String
     ) -> String {
-        guard let timeStart = dateString.firstIndex(
-            of: "T"
-        ) else {
+        guard let timeStart = dateString.firstIndex(of: "T") else {
             return dateString
         }
 
-        let time = dateString[
-            dateString.index(after: timeStart)...
-        ]
+        let time = dateString[dateString.index(after: timeStart)...]
 
         return String(time.prefix(5))
     }
@@ -407,18 +363,12 @@ struct SearchRoutesView: View {
     private func formatDate(
         _ dateString: String
     ) -> String {
-
-        guard let date = ISO8601DateFormatter()
-            .date(from: dateString)
-        else {
+        
+        guard let date = isoDateFormatter.date(from: dateString) else {
             return ""
         }
 
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM"
-
-        return formatter.string(from: date)
+        return dateFormatter.string(from: date)
     }
 
     // MARK: - Duration

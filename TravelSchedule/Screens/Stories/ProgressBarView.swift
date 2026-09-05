@@ -13,7 +13,7 @@ struct ProgressBarView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack (alignment: .leading) {
+            ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: .progressBarCornerRadius)
                     .frame(width: geometry.size.width, height: .progressBarHeight)
                     .foregroundStyle(Color.ypWhiteDay)

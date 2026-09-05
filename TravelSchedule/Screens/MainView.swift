@@ -17,8 +17,14 @@ struct MainView: View {
     @State private var selectedTime: Set<DepartureTimeFilter> = []
     @State private var selectedTransfers: TransferFilter?
     @State private var navigationPath = NavigationPath()
+    @State private var viewedStories: Set<Int> = []
+    @State private var selectedStoryIndex: Int?
 
-
+    private var sortedStoryIndices: [Int] {
+        Story.stories.indices.sorted {
+            !viewedStories.contains($0) && viewedStories.contains($1)
+        }
+    }
     private let apiServices: APIServiceContainer
 
     private enum Route: Hashable {
@@ -37,23 +43,40 @@ struct MainView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            TabView {
-                mainContent
+            ZStack {
+                TabView {
+                    mainContent
+                        .tabItem {
+                            Label("", image: .mainScreenTab)
+                        }
+
+                    SettingsView(
+                        isDarkMode: $isDarkMode,
+                        onUserAgreement: {
+                            navigationPath.append(Route.userAgreement)
+                        }
+                    )
                     .tabItem {
-                        Label("", image: .mainScreenTab)
+                        Label("", image: .settingsScreenTab)
                     }
-                
-                SettingsView(
-                    isDarkMode: $isDarkMode,
-                    onUserAgreement: {
-                        navigationPath.append(Route.userAgreement)
-                    }
-                )
-                .tabItem {
-                    Label("", image: .settingsScreenTab)
+                }
+                .tint(Color.ypBlack)
+
+                if let index = selectedStoryIndex {
+                    StoriesView(
+                        initialIndex: index,
+                        onClose: {
+                            viewedStories.insert(index)
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedStoryIndex = nil
+                            }
+                        },
+                        onStoryViewed: { index in
+                            viewedStories.insert(index)
+                        }
+                    )
                 }
             }
-            .tint(Color.ypBlack)
             .navigationDestination(for: Route.self) { route in
                 citySelectionView(for: route)
             }
@@ -62,6 +85,8 @@ struct MainView: View {
 
     private var mainContent: some View {
         VStack(spacing: 16) {
+            storiesPreview
+
             routeSelectionView
 
             if !fromStation.isEmpty && !toStation.isEmpty {
@@ -70,8 +95,30 @@ struct MainView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
-        .padding(.top, 20)
         .background(Color.ypWhite)
+    }
+
+    private var storiesPreview: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(sortedStoryIndices, id: \.self) { index in
+                    StoryView(story: Story.stories[index], isPreview: true)
+                        .opacity(viewedStories.contains(index) ? 0.5 : 1)
+                        .overlay {
+                            if !viewedStories.contains(index) && selectedStoryIndex != index {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .strokeBorder(Color.ypBlue, lineWidth: 4)
+                            }
+                        }
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedStoryIndex = index
+                            }
+                        }
+                }
+            }
+            .padding(.vertical, 24)
+        }
     }
 
     private var routeSelectionView: some View {
@@ -96,6 +143,7 @@ struct MainView: View {
         .frame(maxWidth: .infinity, maxHeight: 128)
         .background(Color.ypBlue)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .padding(.top, 20)
     }
 
     private var fromCityButton: some View {
@@ -105,11 +153,7 @@ struct MainView: View {
                 station: fromStation
             )
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
         .font(.regular17)
@@ -122,11 +166,7 @@ struct MainView: View {
                 station: toStation
             )
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
         .font(.regular17)
@@ -136,22 +176,11 @@ struct MainView: View {
         placeholder: String,
         station: String
     ) -> some View {
-        Text(
-            station.isEmpty
-            ? placeholder
-            : "\(station)"
-        )
-        .foregroundStyle(
-            station.isEmpty
-            ? Color.ypGray
-            : Color.ypBlackDay
-        )
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
-        .lineLimit(1)
+        
+        Text(station.isEmpty ? placeholder : station)
+            .foregroundStyle( station.isEmpty ? Color.ypGray : Color.ypBlackDay)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .lineLimit(1)
     }
 
     private var findButton: some View {
@@ -172,7 +201,7 @@ struct MainView: View {
         case .fromCity:
             CitySelectionView(
                 service: apiServices.allStationsService
-            ) { city, station in
+            ) { _, station in
                 fromStation = station.title ?? ""
                 fromStationCode = station.codes?.yandex_code ?? ""
                 navigationPath = NavigationPath()
@@ -181,7 +210,7 @@ struct MainView: View {
         case .toCity:
             CitySelectionView(
                 service: apiServices.allStationsService
-            ) { city, station in
+            ) { _, station in
                 toStation = station.title ?? ""
                 toStationCode = station.codes?.yandex_code ?? ""
                 navigationPath = NavigationPath()
