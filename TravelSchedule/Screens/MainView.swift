@@ -24,6 +24,7 @@ struct MainView: View {
         case toCity
         case results
         case filters
+        case carrier(SearchRoutesViewModel.Route)
     }
 
     init(apiServices: APIServiceContainer) {
@@ -102,7 +103,7 @@ struct MainView: View {
         )
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
-        .font(.system(size: 17, weight: .regular))
+        .font(.regular17)
     }
 
     private var toCityButton: some View {
@@ -119,7 +120,7 @@ struct MainView: View {
         )
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
-        .font(.system(size: 17, weight: .regular))
+        .font(.regular17)
     }
 
     private func routeText(
@@ -147,7 +148,7 @@ struct MainView: View {
     private var findButton: some View {
         Button(action: find) {
             Text("Найти")
-                .font(.system(size: 17, weight: .bold))
+                .font(.bold17)
                 .foregroundStyle(Color.ypWhiteDay)
                 .frame(maxWidth: 150, maxHeight: 60)
         }
@@ -189,6 +190,9 @@ struct MainView: View {
                 selectedTransfers: selectedTransfers,
                 onShowFilters: {
                     navigationPath.append(Route.filters)
+                },
+                onShowCarrier: { route in
+                    navigationPath.append(Route.carrier(route))
                 }
             )
         case .filters:
@@ -196,6 +200,13 @@ struct MainView: View {
                 selectedTime: $selectedTime,
                 selectedTransfers: $selectedTransfers
             )
+        case .carrier(let route):
+                CarrierInformationView(
+                    title: route.carrierTitle ?? "",
+                    logo: route.carrierLogo,
+                    email: route.carrierEmail ?? "",
+                    phone: route.carrierPhone ?? ""
+                )
         }
     }
 

@@ -88,7 +88,7 @@ struct FiltersView: View {
         VStack(spacing: 0) {
             Text("Время отправления")
                 .foregroundStyle(Color.ypBlack)
-                .font(.system(size: 24, weight: .bold))
+                .font(.bold24)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
 
@@ -103,7 +103,7 @@ struct FiltersView: View {
                     HStack {
                         Text(filter.title)
                             .foregroundStyle(Color.ypBlack)
-                            .font(.system(size: 17, weight: .regular))
+                            .font(.regular17)
                         Spacer()
                         Image(
                             selectedTime.contains(filter) ? .checkBoxOn : .checkBoxOff
@@ -117,7 +117,7 @@ struct FiltersView: View {
 
             Text("Показывать варианты с пересадками")
                 .foregroundStyle(Color.ypBlack)
-                .font(.system(size: 24, weight: .bold))
+                .font(.bold24)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
 
@@ -128,7 +128,7 @@ struct FiltersView: View {
                     HStack {
                         Text(filter.title)
                             .foregroundStyle(Color.ypBlack)
-                            .font(.system(size: 17, weight: .regular))
+                            .font(.regular17)
                         Spacer()
                         Image(selectedTransfers == filter ? .radioButtonOn : .radioButtonOff)
                             .foregroundStyle(Color.ypBlack)
@@ -142,7 +142,7 @@ struct FiltersView: View {
 
             Button(action: applyFilters) {
                 Text("Применить")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.bold17)
                     .foregroundStyle(Color.ypWhiteDay)
                     .frame(maxWidth: .infinity, maxHeight: 60)
             }

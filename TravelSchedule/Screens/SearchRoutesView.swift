@@ -21,6 +21,7 @@ struct SearchRoutesView: View {
     let selectedTransfers: TransferFilter?
 
     let onShowFilters: () -> Void
+    let onShowCarrier: (SearchRoutesViewModel.Route) -> Void
 
     private var filtersAreActive: Bool {
         !selectedTime.isEmpty || selectedTransfers != nil
@@ -35,7 +36,8 @@ struct SearchRoutesView: View {
         toStationCode: String,
         selectedTime: Set<DepartureTimeFilter>,
         selectedTransfers: TransferFilter?,
-        onShowFilters: @escaping () -> Void
+        onShowFilters: @escaping () -> Void,
+        onShowCarrier: @escaping (SearchRoutesViewModel.Route) -> Void
     ) {
         _viewModel = State(
             wrappedValue: SearchRoutesViewModel(
@@ -51,6 +53,7 @@ struct SearchRoutesView: View {
         self.selectedTime = selectedTime
         self.selectedTransfers = selectedTransfers
         self.onShowFilters = onShowFilters
+        self.onShowCarrier = onShowCarrier
     }
 
     // MARK: - Body
@@ -60,7 +63,7 @@ struct SearchRoutesView: View {
 
             Text("\(fromStation) → \(toStation)")
                 .foregroundStyle(Color.ypBlack)
-                .font(.system(size: 24, weight: .bold))
+                .font(.bold24)
                 .frame(
                     maxWidth: .infinity,
                     alignment: .leading
@@ -113,7 +116,7 @@ struct SearchRoutesView: View {
         ZStack(alignment: .bottom) {
             List(filteredRoutes) { route in
                 Button {
-                    print("route")
+                    onShowCarrier(route)
                 } label: {
                     routeCard(route)
                 }
@@ -134,36 +137,19 @@ struct SearchRoutesView: View {
                 Button(action: specifyTime) {
                     HStack(spacing: 8) {
                         Text("Уточнить время")
-                            .font(
-                                .system(
-                                    size: 17,
-                                    weight: .bold
-                                )
-                            )
-                            .foregroundStyle(
-                                Color.ypWhiteDay
-                            )
+                            .font(.bold17)
+                            .foregroundStyle(Color.ypWhiteDay)
 
                         if filtersAreActive {
                             Circle()
                                 .fill(Color.ypRed)
-                                .frame(
-                                    width: 8,
-                                    height: 8
-                                )
+                                .frame( width: 8, height: 8)
                         }
                     }
-                    .frame(
-                        height: 60
-                    )
-                    .frame(
-                        maxWidth: .infinity
-                    )
+                    .frame(height: 60)
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(
-                    maxWidth: .infinity,
-                    maxHeight: 60
-                )
+                .frame( maxWidth: .infinity, maxHeight: 60)
                 .background(Color.ypBlue)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 16)
@@ -225,12 +211,7 @@ struct SearchRoutesView: View {
                        !carrierTitle.isEmpty {
 
                         Text(carrierTitle)
-                            .font(
-                                .system(
-                                    size: 17,
-                                    weight: .regular
-                                )
-                            )
+                            .font(.regular17)
                             .foregroundStyle(
                                 Color.ypBlackDay
                             )
@@ -241,12 +222,7 @@ struct SearchRoutesView: View {
                             "С пересадкой в \($0)"
                         } ?? "С пересадкой"
                         )
-                        .font(
-                            .system(
-                                size: 12,
-                                weight: .regular
-                            )
-                        )
+                        .font(.regular12)
                         .foregroundStyle(
                             Color.ypRed
                         )
@@ -256,12 +232,7 @@ struct SearchRoutesView: View {
                 Spacer()
 
                 Text(formatDate(route.arrival))
-                    .font(
-                        .system(
-                            size: 12,
-                            weight: .regular
-                        )
-                    )
+                    .font(.regular12)
                     .foregroundStyle(
                         Color.ypBlackDay
                     )
@@ -276,12 +247,7 @@ struct SearchRoutesView: View {
             HStack(spacing: 8) {
 
                 Text(formatTime(route.departure))
-                    .font(
-                        .system(
-                            size: 17,
-                            weight: .regular
-                        )
-                    )
+                    .font(.regular17)
                     .foregroundStyle(
                         Color.ypBlackDay
                     )
@@ -300,12 +266,7 @@ struct SearchRoutesView: View {
                         route.totalDuration
                     )
                 )
-                .font(
-                    .system(
-                        size: 13,
-                        weight: .regular
-                    )
-                )
+                .font(.regular12)
                 .foregroundStyle(
                     Color.ypBlackDay
                 )
@@ -317,12 +278,7 @@ struct SearchRoutesView: View {
                     .frame(maxWidth: .infinity)
 
                 Text(formatTime(route.arrival))
-                    .font(
-                        .system(
-                            size: 17,
-                            weight: .regular
-                        )
-                    )
+                    .font(.regular17)
                     .foregroundStyle(
                         Color.ypBlackDay
                     )
@@ -351,7 +307,6 @@ struct SearchRoutesView: View {
            let url = URL(string: logo) {
 
             AsyncImage(url: url) { phase in
-
                 switch phase {
 
                 case .empty:
@@ -383,24 +338,14 @@ struct SearchRoutesView: View {
 
             Text("Вариантов нет")
                 .foregroundStyle(Color.ypBlack)
-                .font(
-                    .system(
-                        size: 24,
-                        weight: .bold
-                    )
-                )
+                .font(.bold24)
 
             Spacer()
 
             Button(action: specifyTime) {
                 HStack(spacing: 8) {
                     Text("Уточнить время")
-                        .font(
-                            .system(
-                                size: 17,
-                                weight: .bold
-                            )
-                        )
+                        .font(.bold17)
                         .foregroundStyle(
                             Color.ypWhiteDay
                         )
@@ -510,14 +455,3 @@ struct SearchRoutesView: View {
     }
 }
 
-/*
-#Preview {
-    SearchRoutesView(
-        service:  APIServiceContainer().scheduleBetweenStationsService,
-        fromStation: "Челябинск-Главный",
-        toStation: "Санкт-Петербург (Московский вокзал)",
-        fromStationCode: "s9609235",
-        toStationCode: "s9613034"
-    )
-}
-*/

@@ -32,7 +32,7 @@ struct StationSelectionView: View {
             if searchResults.isEmpty && !searchString.isEmpty {
                 Text("Станция не найдена")
                     .foregroundStyle(Color.ypBlack)
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.bold24)
             } else {
                 List (searchResults, id: \.self) { station in
                     Button {
@@ -41,7 +41,7 @@ struct StationSelectionView: View {
                         HStack {
                             Text(station.title ?? "")
                                 .foregroundStyle(Color.ypBlack)
-                                .font(.system(size: 17, weight: .regular))
+                                .font(.regular17)
                             Spacer()
                             Image(.chevron)
                                 .foregroundStyle(Color.ypBlack)

@@ -21,7 +21,7 @@ final class SearchRoutesViewModel {
 
     // MARK: - Route
 
-    struct Route: Identifiable {
+    struct Route: Identifiable, Hashable {
         let id = UUID()
         let from: String
         let to: String
@@ -31,6 +31,8 @@ final class SearchRoutesViewModel {
         let trainNumber: String?
         let carrierTitle: String?
         let carrierLogo: String?
+        let carrierEmail: String?
+        let carrierPhone: String?
         let isTransfer: Bool
         let transferStation: String?
 
@@ -109,8 +111,10 @@ final class SearchRoutesViewModel {
 
                 var carrierTitle = thread?.carrier?.title
                 var carrierLogo = thread?.carrier?.logo
+                var carrierEmail = thread?.carrier?.email
+                var carrierPhone = thread?.carrier?.phone
 
-                if carrierLogo == nil || carrierLogo?.isEmpty == true {
+                if carrierLogo == nil || carrierLogo?.isEmpty == true || carrierEmail == nil || carrierPhone == nil {
                     if let carrierCode = thread?.carrier?.code {
                         do {
                             let carrierInfo = try await carrierInfoService.getCarrierInfo(
@@ -119,6 +123,8 @@ final class SearchRoutesViewModel {
                             let carrier = carrierInfo.carrier ?? carrierInfo.carriers?.first
                             carrierTitle = carrier?.title ?? carrierTitle
                             carrierLogo = carrier?.logo
+                            carrierEmail = carrier?.email
+                            carrierPhone = carrier?.phone
                         } catch {
                             print("Не удалось получить перевозчика \(carrierCode): \(error)")
                         }
@@ -133,6 +139,8 @@ final class SearchRoutesViewModel {
                     trainNumber: thread?.number,
                     carrierTitle: carrierTitle,
                     carrierLogo: carrierLogo,
+                    carrierEmail: carrierEmail,
+                    carrierPhone: carrierPhone,
                     isTransfer: segment.has_transfers ?? false,
                     transferStation: segment.transfers?.first?.title
                 )

@@ -25,7 +25,7 @@ struct NetworkErrorView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 70))
 
                 Text("Нет интернета")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.bold24)
                     .foregroundStyle(Color.ypBlack)
             case .server:
                 Image(.serverError)
@@ -34,7 +34,7 @@ struct NetworkErrorView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 70))
 
                 Text("Ошибка сервера")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.bold24)
                     .foregroundStyle(Color.ypBlack)
             }
         }
