@@ -97,6 +97,7 @@ struct SearchRoutesView: View {
                 } label: {
                     Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
+                        .foregroundStyle(Color.ypBlack)
                 }
                 .padding(.leading, -16)
         )

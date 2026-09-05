@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct RootView: View {
+    @Binding var isDarkMode: Bool
+
     @State private var apiServices: APIServiceContainer?
     @State private var error: AppError?
 
     var body: some View {
         Group {
             if let apiServices {
-                MainView(apiServices: apiServices)
+                MainView(apiServices: apiServices, isDarkMode: $isDarkMode)
             } else if let error {
                 NetworkErrorView(
                     errorType: error == .network ? .network : .server
@@ -23,6 +25,7 @@ struct RootView: View {
                 ProgressView()
             }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .task {
             do {
                 apiServices = try APIServiceContainer()

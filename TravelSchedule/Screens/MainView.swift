@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MainView: View {
+    @Binding var isDarkMode: Bool
+
     @State private var fromStation = ""
     @State private var fromStationCode = ""
     @State private var toStation = ""
@@ -25,30 +27,37 @@ struct MainView: View {
         case results
         case filters
         case carrier(SearchRoutesViewModel.Route)
+        case userAgreement
     }
 
-    init(apiServices: APIServiceContainer) {
+    init(apiServices: APIServiceContainer, isDarkMode: Binding<Bool>) {
         self.apiServices = apiServices
+        self._isDarkMode = isDarkMode
     }
 
     var body: some View {
-        TabView {
-            NavigationStack(path: $navigationPath) {
+        NavigationStack(path: $navigationPath) {
+            TabView {
                 mainContent
-                    .navigationDestination(for: Route.self) { route in
-                        citySelectionView(for: route)
+                    .tabItem {
+                        Label("", image: .mainScreenTab)
                     }
-            }
-            .tabItem {
-                Label("", image: .mainScreenTab)
-            }
-
-            SettingsView()
+                
+                SettingsView(
+                    isDarkMode: $isDarkMode,
+                    onUserAgreement: {
+                        navigationPath.append(Route.userAgreement)
+                    }
+                )
                 .tabItem {
                     Label("", image: .settingsScreenTab)
                 }
+            }
+            .tint(Color.ypBlack)
+            .navigationDestination(for: Route.self) { route in
+                citySelectionView(for: route)
+            }
         }
-        .tint(Color.ypBlack)
     }
 
     private var mainContent: some View {
@@ -207,6 +216,8 @@ struct MainView: View {
                     email: route.carrierEmail ?? "",
                     phone: route.carrierPhone ?? ""
                 )
+        case .userAgreement:
+            UserAgreementView()
         }
     }
 
@@ -220,6 +231,3 @@ struct MainView: View {
     }
 }
 
-#Preview {
-    RootView()
-}
