@@ -8,7 +8,8 @@
 import SwiftUI
 import Combine
 
-final class StoriesViewModel: ObservableObject {
+@Observable
+final class StoriesViewModel {
     struct Configuration {
         let timerTickInterval: TimeInterval
         let progressPerTick: CGFloat
@@ -23,7 +24,7 @@ final class StoriesViewModel: ObservableObject {
         }
     }
 
-    @Published private(set) var progress: CGFloat = 0
+    private(set) var progress: CGFloat = 0
 
     var currentStory: Story { stories[currentStoryIndex] }
     let stories: [Story]
