@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MainView: View {
+    @Binding var isDarkMode: Bool
+
     @State private var fromStation = ""
     @State private var fromStationCode = ""
     @State private var toStation = ""
@@ -15,8 +17,14 @@ struct MainView: View {
     @State private var selectedTime: Set<DepartureTimeFilter> = []
     @State private var selectedTransfers: TransferFilter?
     @State private var navigationPath = NavigationPath()
+    @State private var viewedStories: Set<Int> = []
+    @State private var selectedStoryIndex: Int?
 
-
+    private var sortedStoryIndices: [Int] {
+        Story.stories.indices.sorted {
+            !viewedStories.contains($0) && viewedStories.contains($1)
+        }
+    }
     private let apiServices: APIServiceContainer
 
     private enum Route: Hashable {
@@ -24,44 +32,93 @@ struct MainView: View {
         case toCity
         case results
         case filters
+        case carrier(SearchRoutesViewModel.Route)
+        case userAgreement
     }
 
-    init(apiServices: APIServiceContainer) {
+    init(apiServices: APIServiceContainer, isDarkMode: Binding<Bool>) {
         self.apiServices = apiServices
+        self._isDarkMode = isDarkMode
     }
 
     var body: some View {
-        TabView {
-            NavigationStack(path: $navigationPath) {
-                mainContent
-                    .navigationDestination(for: Route.self) { route in
-                        citySelectionView(for: route)
-                    }
-            }
-            .tabItem {
-                Label("", image: .mainScreenTab)
-            }
+        NavigationStack(path: $navigationPath) {
+            ZStack {
+                TabView {
+                    mainContent
+                        .tabItem {
+                            Label("", image: .mainScreenTab)
+                        }
 
-            SettingsView()
-                .tabItem {
-                    Label("", image: .settingsScreenTab)
+                    SettingsView(
+                        isDarkMode: $isDarkMode,
+                        onUserAgreement: {
+                            navigationPath.append(Route.userAgreement)
+                        }
+                    )
+                    .tabItem {
+                        Label("", image: .settingsScreenTab)
+                    }
                 }
+                .tint(Color.ypBlack)
+
+                if let index = selectedStoryIndex {
+                    StoriesView(
+                        initialIndex: index,
+                        onClose: {
+                            viewedStories.insert(index)
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedStoryIndex = nil
+                            }
+                        },
+                        onStoryViewed: { index in
+                            viewedStories.insert(index)
+                        }
+                    )
+                }
+            }
+            .navigationDestination(for: Route.self) { route in
+                citySelectionView(for: route)
+            }
         }
-        .tint(Color.ypBlack)
     }
 
     private var mainContent: some View {
         VStack(spacing: 16) {
+            storiesPreview
+
             routeSelectionView
 
-            if !fromStation.isEmpty && !toStation.isEmpty {
-                findButton
-            }
+            findButton
+                .opacity(fromStation.isEmpty || toStation.isEmpty ? 0 : 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
-        .padding(.top, 20)
         .background(Color.ypWhite)
+    }
+
+    private var storiesPreview: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 12) {
+                ForEach(sortedStoryIndices, id: \.self) { index in
+                    StoryView(story: Story.stories[index], isPreview: true)
+                        .opacity(viewedStories.contains(index) ? 0.5 : 1)
+                        .overlay {
+                            if !viewedStories.contains(index) && selectedStoryIndex != index {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .strokeBorder(Color.ypBlue, lineWidth: 4)
+                            }
+                        }
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedStoryIndex = index
+                            }
+                        }
+                }
+            }
+            .padding(.vertical, 24)
+        }
+        .scrollIndicators(.never)
     }
 
     private var routeSelectionView: some View {
@@ -86,6 +143,7 @@ struct MainView: View {
         .frame(maxWidth: .infinity, maxHeight: 128)
         .background(Color.ypBlue)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .padding(.top, 20)
     }
 
     private var fromCityButton: some View {
@@ -95,14 +153,10 @@ struct MainView: View {
                 station: fromStation
             )
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
-        .font(.system(size: 17, weight: .regular))
+        .font(.regular17)
     }
 
     private var toCityButton: some View {
@@ -112,42 +166,27 @@ struct MainView: View {
                 station: toStation
             )
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(.horizontal)
         .background(Color.ypWhiteDay)
-        .font(.system(size: 17, weight: .regular))
+        .font(.regular17)
     }
 
     private func routeText(
         placeholder: String,
         station: String
     ) -> some View {
-        Text(
-            station.isEmpty
-            ? placeholder
-            : "\(station)"
-        )
-        .foregroundStyle(
-            station.isEmpty
-            ? Color.ypGray
-            : Color.ypBlackDay
-        )
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .leading
-        )
-        .lineLimit(1)
+
+        Text(station.isEmpty ? placeholder : station)
+            .foregroundStyle( station.isEmpty ? Color.ypGray : Color.ypBlackDay)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .lineLimit(1)
     }
 
     private var findButton: some View {
         Button(action: find) {
             Text("Найти")
-                .font(.system(size: 17, weight: .bold))
+                .font(.bold17)
                 .foregroundStyle(Color.ypWhiteDay)
                 .frame(maxWidth: 150, maxHeight: 60)
         }
@@ -162,7 +201,7 @@ struct MainView: View {
         case .fromCity:
             CitySelectionView(
                 service: apiServices.allStationsService
-            ) { city, station in
+            ) { _, station in
                 fromStation = station.title ?? ""
                 fromStationCode = station.codes?.yandex_code ?? ""
                 navigationPath = NavigationPath()
@@ -171,7 +210,7 @@ struct MainView: View {
         case .toCity:
             CitySelectionView(
                 service: apiServices.allStationsService
-            ) { city, station in
+            ) { _, station in
                 toStation = station.title ?? ""
                 toStationCode = station.codes?.yandex_code ?? ""
                 navigationPath = NavigationPath()
@@ -189,6 +228,9 @@ struct MainView: View {
                 selectedTransfers: selectedTransfers,
                 onShowFilters: {
                     navigationPath.append(Route.filters)
+                },
+                onShowCarrier: { route in
+                    navigationPath.append(Route.carrier(route))
                 }
             )
         case .filters:
@@ -196,6 +238,15 @@ struct MainView: View {
                 selectedTime: $selectedTime,
                 selectedTransfers: $selectedTransfers
             )
+        case .carrier(let route):
+            CarrierInformationView(
+                title: route.carrierTitle ?? "",
+                logo: route.carrierLogo,
+                email: route.carrierEmail ?? "",
+                phone: route.carrierPhone ?? ""
+            )
+        case .userAgreement:
+            UserAgreementView()
         }
     }
 
@@ -209,6 +260,3 @@ struct MainView: View {
     }
 }
 
-#Preview {
-    RootView()
-}

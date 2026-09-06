@@ -18,16 +18,16 @@ struct SearchBarView: View {
     }
 
     var body: some View {
-        HStack (spacing: 0) {
-            HStack (spacing: 0) {
+        HStack(spacing: 0) {
+            HStack(spacing: 0) {
                 TextField(placeholder, text: $searchText)
-                    .font(.system(size: 17, weight: .regular))
+                    .font(.regular17)
                     .foregroundStyle(Color.ypBlack)
                     .autocorrectionDisabled(true)
                     .autocapitalization(.none)
                     .padding(.leading, 33)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .onTapGesture{
+                    .onTapGesture {
                         isSearching = true
                     }
                     .overlay(

@@ -74,6 +74,7 @@ struct CitySelectionView: View {
                 } label: {
                     Image(.chevron)
                         .scaleEffect(x: -1, y: 1)
+                        .foregroundStyle(Color.ypBlack)
                 }
                 .padding(.leading, -16)
         )
@@ -87,7 +88,7 @@ struct CitySelectionView: View {
     private var emptyState: some View {
         Text("Город не найден")
             .foregroundStyle(Color.ypBlack)
-            .font(.system(size: 24, weight: .bold))
+            .font(.bold24)
     }
 
     private var cityList: some View {
@@ -98,7 +99,7 @@ struct CitySelectionView: View {
                 HStack {
                     Text(city.title ?? "")
                         .foregroundStyle(Color.ypBlack)
-                        .font(.system(size: 17, weight: .regular))
+                        .font(.regular17)
 
                     Spacer()
 
