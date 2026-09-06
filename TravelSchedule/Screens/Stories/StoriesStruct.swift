@@ -16,10 +16,10 @@ struct Story {
         self.cover = cover
         self.title = String(
             repeating: "Text ", count: Int.random(in: 8...20)
-            )
+        )
         self.description = String(
             repeating: "Text ", count: Int.random(in: 15...30)
-            )
+        )
     }
 
     static let stories: [Story] = [

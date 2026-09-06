@@ -139,11 +139,10 @@ struct SearchRoutesView: View {
                             .font(.bold17)
                             .foregroundStyle(Color.ypWhiteDay)
 
-                        if filtersAreActive {
-                            Circle()
-                                .fill(Color.ypRed)
-                                .frame(width: 8, height: 8)
-                        }
+                        Circle()
+                            .fill(Color.ypRed)
+                            .frame(width: 8, height: 8)
+                            .opacity(filtersAreActive ? 1 : 0)
                     }
                     .frame(height: 60)
                     .frame(maxWidth: .infinity)
@@ -159,7 +158,7 @@ struct SearchRoutesView: View {
     // MARK: - Filtered Routes
 
     private var filteredRoutes:
-        [SearchRoutesViewModel.Route] {
+    [SearchRoutesViewModel.Route] {
 
         viewModel.routes.filter { route in
             let transferMatches: Bool
@@ -198,21 +197,20 @@ struct SearchRoutesView: View {
                     .clipped()
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let carrierTitle = route.carrierTitle,
-                       !carrierTitle.isEmpty {
+                    if let carrierTitle = route.carrierTitle {
                         Text(carrierTitle)
                             .font(.regular17)
                             .foregroundStyle(Color.ypBlackDay)
+                            .opacity(carrierTitle.isEmpty ? 0 : 1)
                     }
 
-                    if route.isTransfer {
-                        Text(route.transferStation.map {
-                            "С пересадкой в \($0)"
-                        } ?? "С пересадкой"
-                        )
-                        .font(.regular12)
-                        .foregroundStyle(Color.ypRed)
-                    }
+                    Text(
+                        route.transferStation.map { "С пересадкой в \($0)" }
+                        ?? "С пересадкой"
+                    )
+                    .font(.regular12)
+                    .foregroundStyle(Color.ypRed)
+                    .opacity(route.isTransfer ? 1 : 0)
                 }
 
                 Spacer()
@@ -314,11 +312,10 @@ struct SearchRoutesView: View {
                         .font(.bold17)
                         .foregroundStyle(Color.ypWhiteDay)
 
-                    if filtersAreActive {
-                        Circle()
-                            .fill(Color.ypRed)
-                            .frame(width: 8, height: 8)
-                    }
+                    Circle()
+                        .fill(Color.ypRed)
+                        .frame(width: 8, height: 8)
+                        .opacity(filtersAreActive ? 1 : 0)
                 }
                 .frame(height: 60)
                 .frame(maxWidth: .infinity)
@@ -363,7 +360,7 @@ struct SearchRoutesView: View {
     private func formatDate(
         _ dateString: String
     ) -> String {
-        
+
         guard let date = isoDateFormatter.date(from: dateString) else {
             return ""
         }

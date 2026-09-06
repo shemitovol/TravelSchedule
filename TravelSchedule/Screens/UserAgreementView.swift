@@ -41,10 +41,9 @@ struct UserAgreementView: View {
                     WebView(url: url, isLoading: $isLoading, hasError: $hasError)
                         .ignoresSafeArea(edges: .bottom)
 
-                    if isLoading {
-                        ProgressView()
-                            .tint(Color.ypBlackDay)
-                    }
+                    ProgressView()
+                        .tint(Color.ypBlackDay)
+                        .opacity(isLoading ? 1 : 0)
                 }
             }
             .navigationTitle("Пользовательское соглашение")

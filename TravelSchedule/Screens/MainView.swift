@@ -89,9 +89,8 @@ struct MainView: View {
 
             routeSelectionView
 
-            if !fromStation.isEmpty && !toStation.isEmpty {
-                findButton
-            }
+            findButton
+                .opacity(fromStation.isEmpty || toStation.isEmpty ? 0 : 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
@@ -99,7 +98,7 @@ struct MainView: View {
     }
 
     private var storiesPreview: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 12) {
                 ForEach(sortedStoryIndices, id: \.self) { index in
                     StoryView(story: Story.stories[index], isPreview: true)
@@ -119,6 +118,7 @@ struct MainView: View {
             }
             .padding(.vertical, 24)
         }
+        .scrollIndicators(.never)
     }
 
     private var routeSelectionView: some View {
@@ -176,7 +176,7 @@ struct MainView: View {
         placeholder: String,
         station: String
     ) -> some View {
-        
+
         Text(station.isEmpty ? placeholder : station)
             .foregroundStyle( station.isEmpty ? Color.ypGray : Color.ypBlackDay)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -239,12 +239,12 @@ struct MainView: View {
                 selectedTransfers: $selectedTransfers
             )
         case .carrier(let route):
-                CarrierInformationView(
-                    title: route.carrierTitle ?? "",
-                    logo: route.carrierLogo,
-                    email: route.carrierEmail ?? "",
-                    phone: route.carrierPhone ?? ""
-                )
+            CarrierInformationView(
+                title: route.carrierTitle ?? "",
+                logo: route.carrierLogo,
+                email: route.carrierEmail ?? "",
+                phone: route.carrierPhone ?? ""
+            )
         case .userAgreement:
             UserAgreementView()
         }

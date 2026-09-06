@@ -17,28 +17,29 @@ struct CarrierInformationView: View {
 
     var body: some View {
         VStack {
-            if let logo,
-               let url = URL(string: logo) {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                } placeholder: {
+            Group {
+                if let logo,
+                   let url = URL(string: logo) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    } placeholder: {
+                        Image(.wideLogoChecker)
+                            .resizable()
+                            .scaledToFit()
+                    }
+
+                } else {
                     Image(.wideLogoChecker)
                         .resizable()
-                        .scaledToFill()
+                        .scaledToFit()
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 24))
-                .frame(height: 104)
-                .padding(16)
-            } else {
-                Image(.wideLogoChecker)
-                    .resizable()
-                    .scaledToFill()
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .frame(height: 104)
-                    .padding(16)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .frame(maxWidth: .infinity)
+            .frame(height: 104)
+            .padding(16)
 
             Text(title)
                 .font(.bold24)
@@ -60,19 +61,19 @@ struct CarrierInformationView: View {
                     .padding(.vertical, 12)
                 }
 
-                if !phone.isEmpty {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Телефон")
-                                .font(.regular17)
-                            Text(phone)
-                                .font(.regular12)
-                                .foregroundStyle(Color.ypBlue)
-                        }
-                        Spacer()
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Телефон")
+                            .font(.regular17)
+                        Text(phone)
+                            .font(.regular12)
+                            .foregroundStyle(Color.ypBlue)
                     }
-                    .padding(.vertical, 12)
+                    Spacer()
                 }
+                .padding(.vertical, 12)
+                .opacity(phone.isEmpty ? 0 : 1)
+
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
