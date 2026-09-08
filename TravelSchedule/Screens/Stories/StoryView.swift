@@ -58,6 +58,3 @@ struct StoryView: View {
     }
 }
 
-#Preview {
-    StoryView(story: Story.stories[1], isPreview: true)
-}

@@ -9,22 +9,10 @@ import SwiftUI
 
 struct MainView: View {
     @Binding var isDarkMode: Bool
-
-    @State private var fromStation = ""
-    @State private var fromStationCode = ""
-    @State private var toStation = ""
-    @State private var toStationCode = ""
-    @State private var selectedTime: Set<DepartureTimeFilter> = []
-    @State private var selectedTransfers: TransferFilter?
+    @State private var viewModel = MainViewModel()
     @State private var navigationPath = NavigationPath()
-    @State private var viewedStories: Set<Int> = []
     @State private var selectedStoryIndex: Int?
 
-    private var sortedStoryIndices: [Int] {
-        Story.stories.indices.sorted {
-            !viewedStories.contains($0) && viewedStories.contains($1)
-        }
-    }
     private let apiServices: APIServiceContainer
 
     private enum Route: Hashable {
@@ -66,13 +54,13 @@ struct MainView: View {
                     StoriesView(
                         initialIndex: index,
                         onClose: {
-                            viewedStories.insert(index)
+                            viewModel.viewedStories.insert(index)
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedStoryIndex = nil
                             }
                         },
                         onStoryViewed: { index in
-                            viewedStories.insert(index)
+                            viewModel.viewedStories.insert(index)
                         }
                     )
                 }
@@ -90,7 +78,7 @@ struct MainView: View {
             routeSelectionView
 
             findButton
-                .opacity(fromStation.isEmpty || toStation.isEmpty ? 0 : 1)
+                .opacity(viewModel.fromStation.isEmpty || viewModel.toStation.isEmpty ? 0 : 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 16)
@@ -100,11 +88,11 @@ struct MainView: View {
     private var storiesPreview: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 12) {
-                ForEach(sortedStoryIndices, id: \.self) { index in
+                ForEach(viewModel.sortedStoryIndices, id: \.self) { index in
                     StoryView(story: Story.stories[index], isPreview: true)
-                        .opacity(viewedStories.contains(index) ? 0.5 : 1)
+                        .opacity(viewModel.viewedStories.contains(index) ? 0.5 : 1)
                         .overlay {
-                            if !viewedStories.contains(index) && selectedStoryIndex != index {
+                            if !viewModel.viewedStories.contains(index) && selectedStoryIndex != index {
                                 RoundedRectangle(cornerRadius: 16)
                                     .strokeBorder(Color.ypBlue, lineWidth: 4)
                             }
@@ -130,7 +118,7 @@ struct MainView: View {
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
 
-                Button(action: swapStations) {
+                Button(action: viewModel.swapStations) {
                     Image(.return)
                         .frame(minWidth: 36, minHeight: 36)
                 }
@@ -150,7 +138,7 @@ struct MainView: View {
         NavigationLink(value: Route.fromCity) {
             routeText(
                 placeholder: "Откуда",
-                station: fromStation
+                station: viewModel.fromStation
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -163,7 +151,7 @@ struct MainView: View {
         NavigationLink(value: Route.toCity) {
             routeText(
                 placeholder: "Куда",
-                station: toStation
+                station: viewModel.toStation
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -184,7 +172,9 @@ struct MainView: View {
     }
 
     private var findButton: some View {
-        Button(action: find) {
+        Button {
+            navigationPath.append(Route.results)
+        } label: {
             Text("Найти")
                 .font(.bold17)
                 .foregroundStyle(Color.ypWhiteDay)
@@ -202,8 +192,7 @@ struct MainView: View {
             CitySelectionView(
                 service: apiServices.allStationsService
             ) { _, station in
-                fromStation = station.title ?? ""
-                fromStationCode = station.codes?.yandex_code ?? ""
+                viewModel.selectiFromStation(station.title, code: station.codes?.yandex_code)
                 navigationPath = NavigationPath()
             }
 
@@ -211,8 +200,7 @@ struct MainView: View {
             CitySelectionView(
                 service: apiServices.allStationsService
             ) { _, station in
-                toStation = station.title ?? ""
-                toStationCode = station.codes?.yandex_code ?? ""
+                viewModel.selectToStation(station.title, code: station.codes?.yandex_code)
                 navigationPath = NavigationPath()
             }
 
@@ -220,12 +208,12 @@ struct MainView: View {
             SearchRoutesView(
                 service: apiServices.scheduleBetweenStationsService,
                 carrierInfoService: apiServices.carrierInfoService,
-                fromStation: fromStation,
-                toStation: toStation,
-                fromStationCode: fromStationCode,
-                toStationCode: toStationCode,
-                selectedTime: selectedTime,
-                selectedTransfers: selectedTransfers,
+                fromStation: viewModel.fromStation,
+                toStation: viewModel.toStation,
+                fromStationCode: viewModel.fromStationCode,
+                toStationCode: viewModel.toStationCode,
+                selectedTime: viewModel.selectedTime,
+                selectedTransfers: viewModel.selectedTransfers,
                 onShowFilters: {
                     navigationPath.append(Route.filters)
                 },
@@ -235,8 +223,8 @@ struct MainView: View {
             )
         case .filters:
             FiltersView(
-                selectedTime: $selectedTime,
-                selectedTransfers: $selectedTransfers
+                selectedTime: $viewModel.selectedTime,
+                selectedTransfers: $viewModel.selectedTransfers
             )
         case .carrier(let route):
             CarrierInformationView(
@@ -248,15 +236,6 @@ struct MainView: View {
         case .userAgreement:
             UserAgreementView()
         }
-    }
-
-    private func swapStations() {
-        swap(&fromStation, &toStation)
-        swap(&fromStationCode, &toStationCode)
-    }
-
-    private func find() {
-        navigationPath.append(Route.results)
     }
 }
 

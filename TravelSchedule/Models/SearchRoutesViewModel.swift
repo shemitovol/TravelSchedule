@@ -15,6 +15,34 @@ final class SearchRoutesViewModel {
     var isLoading = false
     var error: AppError?
     var routes: [Route] = []
+    var selectedTime: Set<DepartureTimeFilter> = []
+    var selectedTransfers: TransferFilter?
+
+    var filteredRoutes: [Route] {
+        routes.filter { route in
+            let transferMatches: Bool
+            
+            switch selectedTransfers {
+            case .withTransfers:
+                transferMatches = true
+            case .withoutTransfers:
+                transferMatches = !route.isTransfer
+            case nil:
+                transferMatches = true
+            }
+
+            let timeMatches: Bool
+            if selectedTime.isEmpty {
+                timeMatches = true
+            } else {
+                timeMatches = selectedTime.contains {
+                    $0.contains(route.departure)
+                }
+            }
+
+            return transferMatches && timeMatches
+        }
+    }
 
     private let service: ScheduleBetweenStationsServiceProtocol
     private let carrierInfoService: CarrierInfoServiceProtocol
@@ -80,10 +108,14 @@ final class SearchRoutesViewModel {
 
     init(
         service: ScheduleBetweenStationsServiceProtocol,
-        carrierInfoService: CarrierInfoServiceProtocol
+        carrierInfoService: CarrierInfoServiceProtocol,
+        selectedTime: Set<DepartureTimeFilter>,
+        selectedTransfers: TransferFilter?
     ) {
         self.service = service
         self.carrierInfoService = carrierInfoService
+        self.selectedTime = selectedTime
+        self.selectedTransfers = selectedTransfers
     }
 
     // MARK: - Search

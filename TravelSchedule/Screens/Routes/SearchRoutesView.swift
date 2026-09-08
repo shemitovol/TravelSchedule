@@ -49,7 +49,9 @@ struct SearchRoutesView: View {
         _viewModel = State(
             wrappedValue: SearchRoutesViewModel(
                 service: service,
-                carrierInfoService: carrierInfoService
+                carrierInfoService: carrierInfoService,
+                selectedTime: selectedTime,
+                selectedTransfers: selectedTransfers
             )
         )
 
@@ -82,7 +84,7 @@ struct SearchRoutesView: View {
                 NetworkErrorView(
                     errorType: error == .network ? .network : .server
                 )
-            } else if filteredRoutes.isEmpty {
+            } else if viewModel.filteredRoutes.isEmpty {
                 emptyState
             } else {
                 routesContent
@@ -109,6 +111,12 @@ struct SearchRoutesView: View {
                 to: toStationCode
             )
         }
+        .onChange(of: selectedTime) { _, newValue in
+            viewModel.selectedTime = newValue
+        }
+        .onChange(of: selectedTransfers) { _, newValue in
+            viewModel.selectedTransfers = newValue
+        }
     }
 
     // MARK: - Routes Content
@@ -116,7 +124,7 @@ struct SearchRoutesView: View {
     private var routesContent: some View {
 
         ZStack(alignment: .bottom) {
-            List(filteredRoutes) { route in
+            List(viewModel.filteredRoutes) { route in
                 Button {
                     onShowCarrier(route)
                 } label: {
@@ -152,35 +160,6 @@ struct SearchRoutesView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 16)
             }
-        }
-    }
-
-    // MARK: - Filtered Routes
-
-    private var filteredRoutes:
-    [SearchRoutesViewModel.Route] {
-
-        viewModel.routes.filter { route in
-            let transferMatches: Bool
-            switch selectedTransfers {
-            case .withTransfers:
-                transferMatches = true
-            case .withoutTransfers:
-                transferMatches = !route.isTransfer
-            case nil:
-                transferMatches = true
-            }
-
-            let timeMatches: Bool
-            if selectedTime.isEmpty {
-                timeMatches = true
-            } else {
-                timeMatches = selectedTime.contains {
-                    $0.contains(route.departure)
-                }
-            }
-
-            return transferMatches && timeMatches
         }
     }
 

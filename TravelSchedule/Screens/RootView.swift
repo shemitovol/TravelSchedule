@@ -10,14 +10,13 @@ import SwiftUI
 struct RootView: View {
     @Binding var isDarkMode: Bool
 
-    @State private var apiServices: APIServiceContainer?
-    @State private var error: AppError?
+    @State private var viewModel = RootViewModel()
 
     var body: some View {
         Group {
-            if let apiServices {
+            if let apiServices = viewModel.apiServices {
                 MainView(apiServices: apiServices, isDarkMode: $isDarkMode)
-            } else if let error {
+            } else if let error = viewModel.error {
                 NetworkErrorView(
                     errorType: error == .network ? .network : .server
                 )
@@ -27,11 +26,7 @@ struct RootView: View {
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
         .task {
-            do {
-                apiServices = try APIServiceContainer()
-            } catch {
-                self.error = .server
-            }
+            viewModel.setupServices()
         }
     }
 }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CitySelectionView: View {
     @State private var viewModel: CitySelectionViewModel
-    @State private var searchString = ""
     @State private var selectedCity: Components.Schemas.Settlement?
 
     @Environment(\.dismiss) private var dismiss
@@ -32,13 +31,6 @@ struct CitySelectionView: View {
         self.onSelect = onSelect
     }
 
-    private var searchResults: [Components.Schemas.Settlement] {
-        viewModel.cities.filter {
-            searchString.isEmpty ||
-            $0.title?.localizedCaseInsensitiveContains(searchString) == true
-        }
-    }
-
     var body: some View {
         VStack {
             if viewModel.isLoading {
@@ -48,9 +40,9 @@ struct CitySelectionView: View {
                     errorType: error == .network ? .network : .server
                 )
             } else {
-                SearchBarView(searchText: $searchString)
+                SearchBarView(searchText: $viewModel.searchString)
 
-                if searchResults.isEmpty && !searchString.isEmpty {
+                if viewModel.searchResults.isEmpty && !viewModel.searchString.isEmpty {
                     Spacer()
                     emptyState
                     Spacer()
@@ -92,7 +84,7 @@ struct CitySelectionView: View {
     }
 
     private var cityList: some View {
-        List(searchResults, id: \.self) { city in
+        List(viewModel.searchResults, id: \.self) { city in
             Button {
                 selectedCity = city
             } label: {

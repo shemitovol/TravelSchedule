@@ -6,6 +6,7 @@
 //
 
 import Observation
+import Foundation
 
 @MainActor
 @Observable
@@ -13,6 +14,14 @@ final class CitySelectionViewModel {
     var cities: [Components.Schemas.Settlement] = []
     var isLoading = false
     var error: AppError?
+    var searchString = ""
+
+    var searchResults: [Components.Schemas.Settlement] {
+        cities.filter {
+            searchString.isEmpty ||
+            $0.title?.localizedCaseInsensitiveContains(searchString) == true
+        }
+    }
 
     private let service: AllStationsServiceProtocol
 

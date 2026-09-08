@@ -9,13 +9,22 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding var isDarkMode: Bool
-    let onUserAgreement: () -> Void
+    @State private var viewModel: SettingsViewModel
+
+    init(isDarkMode: Binding<Bool>, onUserAgreement: @escaping () -> Void) {
+        self._isDarkMode = isDarkMode
+        self._viewModel = State(
+            initialValue: SettingsViewModel(
+                onUserAgreement: onUserAgreement
+            )
+        )
+    }
 
     var body: some View {
         VStack {
             VStack(spacing: 0) {
                 HStack {
-                    Text("Темная тема")
+                    Text(viewModel.darkModeString)
                         .foregroundStyle(Color.ypBlack)
                         .font(.regular17)
                     Spacer()
@@ -26,10 +35,10 @@ struct SettingsView: View {
                 .padding(.horizontal, 16)
 
                 Button {
-                    onUserAgreement()
+                    viewModel.onUserAgreement()
                 } label: {
                     HStack {
-                        Text("Пользовательское соглашение")
+                        Text(viewModel.userAgreement)
                             .foregroundStyle(Color.ypBlack)
                             .font(.regular17)
                         Spacer()
@@ -45,8 +54,8 @@ struct SettingsView: View {
             Spacer()
 
             VStack(spacing: 16) {
-                Text("Приложение использует API «Яндекс.Расписания»")
-                Text("Версия 1.0 (beta)")
+                Text(viewModel.apiDescription)
+                Text(viewModel.appVersion)
             }
             .font(.regular12)
             .foregroundStyle(Color.ypBlack)

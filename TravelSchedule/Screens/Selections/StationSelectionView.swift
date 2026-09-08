@@ -8,33 +8,33 @@
 import SwiftUI
 
 struct StationSelectionView: View {
-    @State private var searchString = ""
+    @State private var viewModel: StationSelectionViewModel
     @Environment(\.dismiss) private var dismiss
 
-    let city: Components.Schemas.Settlement
     let onSelect: (Components.Schemas.Station) -> Void
 
-    var searchResults: [Components.Schemas.Station] {
-        let stations = city.stations ?? []
-        if searchString.isEmpty {
-            return stations
-        } else {
-            return stations.filter {
-                $0.title?.localizedCaseInsensitiveContains(searchString) == true
-            }
-        }
+    init(
+        city: Components.Schemas.Settlement,
+        onSelect: @escaping (Components.Schemas.Station) -> Void
+    ) {
+        _viewModel = State(
+            wrappedValue: StationSelectionViewModel(
+                stations: city.stations ?? []
+            )
+        )
+        self.onSelect = onSelect
     }
 
     var body: some View {
         VStack {
-            SearchBarView(searchText: $searchString)
+            SearchBarView(searchText: $viewModel.searchString)
 
-            if searchResults.isEmpty && !searchString.isEmpty {
+            if viewModel.searchResults.isEmpty && !viewModel.searchString.isEmpty {
                 Text("Станция не найдена")
                     .foregroundStyle(Color.ypBlack)
                     .font(.bold24)
             } else {
-                List(searchResults, id: \.self) { station in
+                List(viewModel.searchResults, id: \.self) { station in
                     Button {
                         onSelect(station)
                     } label: {

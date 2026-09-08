@@ -22,7 +22,3 @@ struct CloseStoryButton: View {
         .contentShape(Circle())
     }
 }
-
-#Preview {
-    CloseStoryButton(action: {print("close")})
-}

@@ -56,6 +56,3 @@ struct MaskView: View {
     }
 }
 
-#Preview {
-    ProgressBarView(numberOfSection: 5, progress: 0.5)
-}

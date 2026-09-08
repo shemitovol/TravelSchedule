@@ -9,41 +9,23 @@ import SwiftUI
 import WebKit
 
 struct UserAgreementView: View {
-    @State private var hasError = false
-    @State private var isLoading = true
+    @State private var viewModel = UserAgreementViewModel()
+    @State private var reloadID = UUID()
     @Environment(\.dismiss) private var dismiss
 
-    private let urlString = "https://yandex.ru/legal/practicum_offer"
-
     var body: some View {
-        if let url = URL(string: urlString) {
+        if let url = viewModel.url {
             ZStack {
-                if hasError {
-                    VStack(spacing: 16) {
-                        Text("Не удалось загрузить страницу")
-                            .font(.regular17)
-                            .foregroundStyle(Color.ypBlack)
-
-                        Button("Повторить") {
-                            hasError = false
-                            isLoading = true
-                        }
-                        .font(.bold17)
-                        .foregroundStyle(Color.ypWhiteDay)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 60)
-                        .background(Color.ypBlue)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(16)
+                if viewModel.hasError {
+                    errorView
                 } else {
-                    WebView(url: url, isLoading: $isLoading, hasError: $hasError)
+                    WebView(url: url, isLoading: $viewModel.isLoading, hasError: $viewModel.hasError)
+                        .id(reloadID)
                         .ignoresSafeArea(edges: .bottom)
 
                     ProgressView()
                         .tint(Color.ypBlackDay)
-                        .opacity(isLoading ? 1 : 0)
+                        .opacity(viewModel.isLoading ? 1 : 0)
                 }
             }
             .navigationTitle("Пользовательское соглашение")
@@ -62,6 +44,27 @@ struct UserAgreementView: View {
             )
             .background(Color.ypWhite)
         }
+    }
+
+    private var errorView: some View {
+        VStack(spacing: 16) {
+            Text("Не удалось загрузить страницу")
+                .font(.regular17)
+                .foregroundStyle(Color.ypBlack)
+
+            Button("Повторить") {
+                viewModel.retry()
+                reloadID = UUID()
+            }
+            .font(.bold17)
+            .foregroundStyle(Color.ypWhiteDay)
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .background(Color.ypBlue)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(16)
     }
 }
 
@@ -129,7 +132,3 @@ private struct WebView: UIViewRepresentable {
     }
 }
 
-
-#Preview {
-    UserAgreementView()
-}
