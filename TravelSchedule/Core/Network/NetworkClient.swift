@@ -19,11 +19,6 @@ typealias RouteStations = Components.Schemas.ThreadStationsResponse
 typealias ScheduleBetweenStations = Components.Schemas.Segments
 typealias StationSchedule = Components.Schemas.ScheduleResponse
 
-enum AppError: Error {
-    case network
-    case server
-}
-
 actor NetworkClient: NetworkClientProtocol {
     private let client: Client
     private let apikey: String

@@ -1,5 +1,5 @@
 //
-//  StoriesStruct.swift
+//  Story.swift
 //  TravelSchedule
 //
 //  Created by Олег Сергеевич on 04.09.2026.
