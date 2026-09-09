@@ -35,8 +35,7 @@ struct SearchRoutesView: View {
     }()
 
     init(
-        service: ScheduleBetweenStationsServiceProtocol,
-        carrierInfoService: CarrierInfoServiceProtocol,
+        networkClient: NetworkClientProtocol,
         fromStation: String,
         toStation: String,
         fromStationCode: String,
@@ -48,8 +47,7 @@ struct SearchRoutesView: View {
     ) {
         _viewModel = State(
             wrappedValue: SearchRoutesViewModel(
-                service: service,
-                carrierInfoService: carrierInfoService,
+                networkClient: networkClient,
                 selectedTime: selectedTime,
                 selectedTransfers: selectedTransfers
             )

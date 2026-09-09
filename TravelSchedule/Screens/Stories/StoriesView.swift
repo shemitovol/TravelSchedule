@@ -28,6 +28,7 @@ struct StoriesView: View {
                 initialIndex: initialIndex
             )
         )
+
         self.onClose = onClose
         self.onStoryViewed = onStoryViewed
     }
@@ -51,7 +52,11 @@ struct StoriesView: View {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         dragOffset = UIScreen.main.bounds.height
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+
+                    Task { @MainActor in
+                        try? await Task.sleep(
+                            nanoseconds: 300_000_000
+                        )
                         onClose()
                     }
                 }
@@ -70,7 +75,7 @@ struct StoriesView: View {
             viewModel.stop()
         }
         .contentShape(Rectangle())
-        .gesture (
+        .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     if !isDragging {
@@ -78,7 +83,7 @@ struct StoriesView: View {
                         touchLocation = value.startLocation
                         viewModel.stop()
                     }
-                    
+
                     if value.translation.height > 0 {
                         dragOffset = value.translation.height
                     }
@@ -91,7 +96,10 @@ struct StoriesView: View {
                             dragOffset = UIScreen.main.bounds.height
                         }
 
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        Task { @MainActor in
+                            try? await Task.sleep(
+                                nanoseconds: 300_000_000
+                            )
                             onClose()
                         }
                         return
@@ -111,11 +119,13 @@ struct StoriesView: View {
                         dragOffset = 0
                     }
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    Task { @MainActor in
+                        try? await Task.sleep(
+                            nanoseconds: 300_000_000
+                        )
                         viewModel.start()
                     }
                 }
         )
     }
 }
-

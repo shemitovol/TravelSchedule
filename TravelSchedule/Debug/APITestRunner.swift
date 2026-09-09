@@ -22,14 +22,11 @@ enum APITestRunner {
 
 final class APITester {
     //MARK: - Initialization
-    private let client: Client
+    private let networkClient: NetworkClientProtocol
     private let configuration = AuthConfiguration.standard
 
     init() throws {
-        self.client = Client(
-            serverURL: try Servers.Server1.url(),
-            transport: URLSessionTransport()
-        )
+        self.networkClient = try NetworkClient()
     }
 
     //MARK: - Private Properties
@@ -54,20 +51,11 @@ final class APITester {
         static let baseURL = "https://api.rasp.yandex-net.ru/v3.0/search/"
     }
 
-    private lazy var allStationsService = AllStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var carrierInfoService = CarrierInfoService(client: client, apikey: configuration.apiKey)
-    private lazy var copyrightService = CopyrightService(client: client, apikey: configuration.apiKey)
-    private lazy var nearestCityService = NearestCityService(client: client, apikey: configuration.apiKey)
-    private lazy var nearestStationsService = NearestStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var routeStationsService = RouteStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var scheduleBetweenStationsService = ScheduleBetweenStationsService(client: client, apikey: configuration.apiKey)
-    private lazy var stationScheduleService = StationScheduleService(client: client, apikey: configuration.apiKey)
-
     //MARK: - Public Methods
     func testFetchAllStations() async {
         do {
             print("Fetching all stations...")
-            let allStations = try await allStationsService.getAllStations()
+            let allStations = try await networkClient.getAllStations()
             let countries = allStations.countries ?? []
             print("Countries: \(countries.count)")
             let regions = countries.flatMap { $0.regions ?? []}
@@ -84,7 +72,7 @@ final class APITester {
     func testFetchCarrierInfo() async {
         do {
             print("Fetching carrier info...")
-            let carrierInfo = try await carrierInfoService.getCarrierInfo(code: TestData.carrierCode)
+            let carrierInfo = try await networkClient.getCarrierInfo(code: TestData.carrierCode)
             print("Successfully fetched carrier info: \(carrierInfo)")
         } catch {
             print("Error fetching carrier info: \(error)")
@@ -94,7 +82,7 @@ final class APITester {
     func testFetchCopyright() async {
         do {
             print("Fetching copyright...")
-            let copyright = try await copyrightService.getCopyright()
+            let copyright = try await networkClient.getCopyright()
             print("Successfully fetched copyright: \(copyright)")
         } catch {
             print("Error fetching copyright: \(error)")
@@ -104,7 +92,7 @@ final class APITester {
     func testFetchNearestCity() async {
         do {
             print("Fetching city...")
-            let city = try await nearestCityService.getNearestCity(
+            let city = try await networkClient.getNearestCity(
                 lat: TestData.lat,
                 lng: TestData.lng
             )
@@ -118,7 +106,7 @@ final class APITester {
     func testFetchStations() async {
         do {
             print("Fetching stations...")
-            let stations = try await nearestStationsService.getNearestStations(
+            let stations = try await networkClient.getNearestStations(
                 lat: TestData.lat,
                 lng: TestData.lng,
                 distance: TestData.distance
@@ -132,7 +120,7 @@ final class APITester {
     func testFetchRouteStations() async {
         do {
             print("Fetching route stations...")
-            let routeStations = try await routeStationsService.getRouteStations(uid: TestData.uid)
+            let routeStations = try await networkClient.getRouteStations(uid: TestData.uid)
             print("Successfully fetched route stations: \(routeStations)")
         } catch {
             print("Error fetching route stations: \(error)")
@@ -142,7 +130,7 @@ final class APITester {
     func testFetchScheduleBetweenStations() async {
         do {
             print("Fetching schedule between stations...")
-            let scheduleBetweenStations = try await scheduleBetweenStationsService.getScheduleBetweenStations(
+            let scheduleBetweenStations = try await networkClient.getScheduleBetweenStations(
                 from: TestData.station,
                 to: TestData.city,
                 date: "2026-09-02",
@@ -157,7 +145,7 @@ final class APITester {
     func testFetchStationSchedule() async {
         do {
             print("Fetching station schedule...")
-            let stationSchedule = try await stationScheduleService.getStationSchedule(station: TestData.station)
+            let stationSchedule = try await networkClient.getStationSchedule(station: TestData.station)
             print("Successfully fetched station schedule: \(stationSchedule)")
         } catch {
             print("Error fetching station schedule: \(error)")

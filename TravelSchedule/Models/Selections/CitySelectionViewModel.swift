@@ -23,10 +23,10 @@ final class CitySelectionViewModel {
         }
     }
 
-    private let service: AllStationsServiceProtocol
+    private let networkClient: NetworkClientProtocol
 
-    init(service: AllStationsServiceProtocol){
-        self.service = service
+    init(networkClient: NetworkClientProtocol) {
+        self.networkClient = networkClient
     }
 
     func loadCities() async {
@@ -34,7 +34,7 @@ final class CitySelectionViewModel {
         error = nil
 
         do {
-            let response = try await service.getAllStations()
+            let response = try await networkClient.getAllStations()
             cities = response.countries?
                 .flatMap { $0.regions ?? []}
                 .flatMap { $0.settlements ?? []} ?? []

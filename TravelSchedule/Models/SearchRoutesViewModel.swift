@@ -44,8 +44,7 @@ final class SearchRoutesViewModel {
         }
     }
 
-    private let service: ScheduleBetweenStationsServiceProtocol
-    private let carrierInfoService: CarrierInfoServiceProtocol
+    private let networkClient: NetworkClientProtocol
 
     // MARK: - Route
 
@@ -107,13 +106,11 @@ final class SearchRoutesViewModel {
     // MARK: - Init
 
     init(
-        service: ScheduleBetweenStationsServiceProtocol,
-        carrierInfoService: CarrierInfoServiceProtocol,
+        networkClient: NetworkClientProtocol,
         selectedTime: Set<DepartureTimeFilter>,
         selectedTransfers: TransferFilter?
     ) {
-        self.service = service
-        self.carrierInfoService = carrierInfoService
+        self.networkClient = networkClient
         self.selectedTime = selectedTime
         self.selectedTransfers = selectedTransfers
     }
@@ -127,7 +124,7 @@ final class SearchRoutesViewModel {
 
         do {
             let today = Self.currentDateString()
-            let response = try await service.getScheduleBetweenStations(
+            let response = try await networkClient.getScheduleBetweenStations(
                 from: from,
                 to: to,
                 date: today,
@@ -149,7 +146,7 @@ final class SearchRoutesViewModel {
                 if carrierLogo == nil || carrierLogo?.isEmpty == true || carrierEmail == nil || carrierPhone == nil {
                     if let carrierCode = thread?.carrier?.code {
                         do {
-                            let carrierInfo = try await carrierInfoService.getCarrierInfo(
+                            let carrierInfo = try await networkClient.getCarrierInfo(
                                 code: "\(carrierCode)"
                             )
                             let carrier = carrierInfo.carrier ?? carrierInfo.carriers?.first

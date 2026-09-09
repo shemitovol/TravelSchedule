@@ -190,7 +190,7 @@ struct MainView: View {
         switch route {
         case .fromCity:
             CitySelectionView(
-                service: apiServices.allStationsService
+                networkClient: apiServices.networkClient
             ) { _, station in
                 viewModel.selectiFromStation(station.title, code: station.codes?.yandex_code)
                 navigationPath = NavigationPath()
@@ -198,7 +198,7 @@ struct MainView: View {
 
         case .toCity:
             CitySelectionView(
-                service: apiServices.allStationsService
+                networkClient: apiServices.networkClient
             ) { _, station in
                 viewModel.selectToStation(station.title, code: station.codes?.yandex_code)
                 navigationPath = NavigationPath()
@@ -206,8 +206,7 @@ struct MainView: View {
 
         case .results:
             SearchRoutesView(
-                service: apiServices.scheduleBetweenStationsService,
-                carrierInfoService: apiServices.carrierInfoService,
+                networkClient: apiServices.networkClient,
                 fromStation: viewModel.fromStation,
                 toStation: viewModel.toStation,
                 fromStationCode: viewModel.fromStationCode,

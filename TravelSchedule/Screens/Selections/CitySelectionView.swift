@@ -19,14 +19,14 @@ struct CitySelectionView: View {
     ) -> Void
 
     init(
-        service: AllStationsServiceProtocol,
+        networkClient: NetworkClientProtocol,
         onSelect: @escaping (
             Components.Schemas.Settlement,
             Components.Schemas.Station
         ) -> Void
     ) {
         _viewModel = State(
-            wrappedValue: CitySelectionViewModel(service: service)
+            wrappedValue: CitySelectionViewModel(networkClient: networkClient)
         )
         self.onSelect = onSelect
     }

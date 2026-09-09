@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
-import Combine
+import Observation
 
+@MainActor
 @Observable
 final class StoriesViewModel {
     struct Configuration {
@@ -28,10 +29,7 @@ final class StoriesViewModel {
     var currentStoryIndex: Int { Int(progress * CGFloat(stories.count)) }
     let stories: [Story]
     private let configuration: Configuration
-    private var timer: Timer.TimerPublisher?
-    private var timerConnection: Cancellable?
-    private var cancellable: Cancellable?
-
+    private var timerTask: Task<Void, Never>?
     private(set) var progress: CGFloat = 0
 
     init(stories: [Story] = Story.stories, initialIndex: Int = 0) {
@@ -41,49 +39,66 @@ final class StoriesViewModel {
     }
 
     func start() {
-        guard cancellable == nil else { return }
-        let timer = Self.createTimer(configuration: configuration)
-        self.timer = timer
-        cancellable = timer
-            .sink { [weak self] _ in
-                self?.timerTick()
+        guard timerTask == nil else { return }
+
+        timerTask = Task { @MainActor in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(
+                        nanoseconds: UInt64(
+                            configuration.timerTickInterval
+                            * 1_000_000_000
+                        )
+                    )
+                } catch {
+                    return
+                }
+
+                guard !Task.isCancelled else { return }
+
+                timerTick()
             }
-        timerConnection = timer.connect()
+        }
     }
 
     func stop() {
-        cancellable?.cancel()
-        cancellable = nil
-        timerConnection?.cancel()
-        timerConnection = nil
-        timer = nil
+        timerTask?.cancel()
+        timerTask = nil
     }
 
     func nextStory() {
-        let nextStoryIndex = currentStoryIndex + 1 < stories.count
-        ? currentStoryIndex + 1
-        : 0
+        let nextStoryIndex =
+            currentStoryIndex + 1 < stories.count
+            ? currentStoryIndex + 1
+            : 0
+
         withAnimation {
             progress = CGFloat(nextStoryIndex) / CGFloat(stories.count)
         }
+
         resetTimer()
     }
 
     func previousStory() {
-        let previousStoryIndex = currentStoryIndex > 0
-        ? currentStoryIndex - 1
-        : stories.count - 1
+        let previousStoryIndex =
+            currentStoryIndex > 0
+            ? currentStoryIndex - 1
+            : stories.count - 1
+
         withAnimation {
             progress = CGFloat(previousStoryIndex) / CGFloat(stories.count)
         }
+
         resetTimer()
     }
 
     private func timerTick() {
         var nextProgress = progress + configuration.progressPerTick
+
         if nextProgress >= 1 {
             nextProgress = 0
         }
+
         withAnimation {
             progress = nextProgress
         }
@@ -92,18 +107,5 @@ final class StoriesViewModel {
     private func resetTimer() {
         stop()
         start()
-    }
-
-    private static func createTimer(configuration: Configuration) -> Timer.TimerPublisher {
-        Timer
-            .publish(
-                every: configuration.timerTickInterval,
-                on: .main,
-                in: .common
-            )
-    }
-
-    deinit {
-        stop()
     }
 }
