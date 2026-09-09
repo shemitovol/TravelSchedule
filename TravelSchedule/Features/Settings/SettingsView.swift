@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+private enum SettingsConstants {
+    static let appVersion = "Версия 1.0 (beta"
+    static let apiDescription = "Приложение использует API «Яндекс.Расписания»"
+    static let userAgreement = "Пользовательское соглашение"
+    static let darkModeString = "Темная тема"
+}
+
 struct SettingsView: View {
     @Binding var isDarkMode: Bool
     @State private var viewModel: SettingsViewModel
@@ -24,7 +31,7 @@ struct SettingsView: View {
         VStack {
             VStack(spacing: 0) {
                 HStack {
-                    Text(viewModel.darkModeString)
+                    Text(SettingsConstants.darkModeString)
                         .foregroundStyle(Color.ypBlack)
                         .font(.regular17)
                     Spacer()
@@ -38,7 +45,7 @@ struct SettingsView: View {
                     viewModel.onUserAgreement()
                 } label: {
                     HStack {
-                        Text(viewModel.userAgreement)
+                        Text(SettingsConstants.userAgreement)
                             .foregroundStyle(Color.ypBlack)
                             .font(.regular17)
                         Spacer()
@@ -54,8 +61,8 @@ struct SettingsView: View {
             Spacer()
 
             VStack(spacing: 16) {
-                Text(viewModel.apiDescription)
-                Text(viewModel.appVersion)
+                Text(SettingsConstants.apiDescription)
+                Text(SettingsConstants.appVersion)
             }
             .font(.regular12)
             .foregroundStyle(Color.ypBlack)

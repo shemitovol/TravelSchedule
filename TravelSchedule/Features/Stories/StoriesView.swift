@@ -13,14 +13,14 @@ struct StoriesView: View {
     @State private var isDragging = false
     @State private var touchLocation: CGPoint = .zero
 
-    let onClose: () -> Void
-    let onStoryViewed: (Int) -> Void
+    let onClose: @MainActor @Sendable () -> Void
+    let onStoryViewed: @MainActor @Sendable (Int) -> Void
 
     init(
         stories: [Story] = Story.stories,
         initialIndex: Int = 0,
-        onClose: @escaping () -> Void,
-        onStoryViewed: @escaping (Int) -> Void
+        onClose: @escaping @MainActor @Sendable () -> Void,
+        onStoryViewed: @escaping @MainActor @Sendable (Int) -> Void
     ) {
         _viewModel = State(
             wrappedValue: StoriesViewModel(

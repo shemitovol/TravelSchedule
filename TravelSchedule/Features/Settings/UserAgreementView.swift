@@ -16,16 +16,16 @@ struct UserAgreementView: View {
     var body: some View {
         if let url = viewModel.url {
             ZStack {
-                if viewModel.hasError {
+                if viewModel.state == .error {
                     errorView
                 } else {
-                    WebView(url: url, isLoading: $viewModel.isLoading, hasError: $viewModel.hasError)
+                    WebView(url: url, state: $viewModel.state)
                         .id(reloadID)
                         .ignoresSafeArea(edges: .bottom)
 
                     ProgressView()
                         .tint(Color.ypBlackDay)
-                        .opacity(viewModel.isLoading ? 1 : 0)
+                        .opacity(viewModel.state == .loading ? 1 : 0)
                 }
             }
             .navigationTitle("Пользовательское соглашение")
@@ -70,11 +70,10 @@ struct UserAgreementView: View {
 
 private struct WebView: UIViewRepresentable {
     let url: URL
-    @Binding var isLoading: Bool
-    @Binding var hasError: Bool
+    @Binding var state: UserAgreementViewModel.State
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isLoading: $isLoading, hasError: $hasError)
+        Coordinator(state: $state)
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -89,27 +88,24 @@ private struct WebView: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
-        private let isLoading: Binding<Bool>
-        private let hasError: Binding<Bool>
+        private let state: Binding<UserAgreementViewModel.State>
 
-        init(isLoading: Binding<Bool>, hasError: Binding<Bool>) {
-            self.isLoading = isLoading
-            self.hasError = hasError
+        init(state: Binding<UserAgreementViewModel.State>) {
+            self.state = state
         }
 
         func webView(
             _ webView: WKWebView,
             didStartProvisionalNavigation navigation: WKNavigation?
         ) {
-            isLoading.wrappedValue = true
-            hasError.wrappedValue = false
+            state.wrappedValue = .loading
         }
 
         func webView(
             _ webView: WKWebView,
             didFinish navigation: WKNavigation?
         ) {
-            isLoading.wrappedValue = false
+            state.wrappedValue = .loaded
         }
 
         func webView(
@@ -117,8 +113,7 @@ private struct WebView: UIViewRepresentable {
             didFail navigation: WKNavigation?,
             withError: Error
         ) {
-            isLoading.wrappedValue = false
-            hasError.wrappedValue = true
+            state.wrappedValue = .error
         }
 
         func webView(
@@ -126,8 +121,7 @@ private struct WebView: UIViewRepresentable {
             didFailProvisionalNavigation navigation: WKNavigation?,
             withError: Error
         ) {
-            isLoading.wrappedValue = false
-            hasError.wrappedValue = true
+            state.wrappedValue = .error
         }
     }
 }

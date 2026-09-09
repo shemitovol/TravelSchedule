@@ -11,9 +11,14 @@ import Foundation
 @MainActor
 @Observable
 final class SearchRoutesViewModel {
+    enum State {
+        case idle
+        case loading
+        case loaded
+        case error(AppError)
+    }
 
-    var isLoading = false
-    var error: AppError?
+    var state: State = .idle
     var routes: [Route] = []
     var selectedTime: Set<DepartureTimeFilter> = []
     var selectedTransfers: TransferFilter?
@@ -43,12 +48,62 @@ final class SearchRoutesViewModel {
             return transferMatches && timeMatches
         }
     }
+    
+    var filtersAreActive: Bool {
+        !selectedTime.isEmpty || selectedTransfers != nil
+    }
 
     private let networkClient: NetworkClientProtocol
 
+    //MARK: - Route Card Data Formatters
+    private let isoDateFormatter = ISO8601DateFormatter()
+
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM"
+        return formatter
+    }()
+
+    func formatTime(_ dateString: String) -> String {
+        guard let timeStart = dateString.firstIndex(of: "T") else {
+            return dateString
+        }
+
+        let time = dateString[dateString.index(after: timeStart)...]
+        return String(time.prefix(5))
+    }
+
+    func formatDate(_ dateString: String) -> String {
+        guard let date = isoDateFormatter.date(from: dateString) else {
+            return ""
+        }
+
+        return dateFormatter.string(from: date)
+    }
+
+    func formatDuration(_ seconds: Int?) -> String {
+        guard let seconds else { return "" }
+
+        let hours = seconds / 3600
+        let word: String
+
+        if hours % 100 >= 11 && hours % 100 <= 14 {
+            word = "часов"
+        } else {
+            switch hours % 10 {
+            case 1: word = "час"
+            case 2...4: word = "часа"
+            default: word = "часов"
+            }
+        }
+
+        return "\(hours) \(word)"
+    }
+
     // MARK: - Route
 
-    struct Route: Identifiable, Hashable {
+    struct Route: Identifiable, Hashable, Sendable {
         let id = UUID()
         let from: String
         let to: String
@@ -118,8 +173,7 @@ final class SearchRoutesViewModel {
     // MARK: - Search
 
     func search(from: String, to: String) async {
-        isLoading = true
-        error = nil
+        state = .loading
         routes = []
 
         do {
@@ -185,14 +239,14 @@ final class SearchRoutesViewModel {
                 }
                 return firstArrival < secondArrival
             }
+            state = .loaded
 
         } catch let error as AppError {
-            self.error = error
+            state = .error(error)
         } catch {
             print("Неизвестная ошибка:", error )
-            self.error = .server
+            state = .error(.server)
         }
-        isLoading = false
     }
 
     //MARK: - Today's Date Formatter

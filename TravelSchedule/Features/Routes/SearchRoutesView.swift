@@ -23,17 +23,6 @@ struct SearchRoutesView: View {
     let onShowFilters: () -> Void
     let onShowCarrier: (SearchRoutesViewModel.Route) -> Void
 
-    private var filtersAreActive: Bool {
-        !selectedTime.isEmpty || selectedTransfers != nil
-    }
-    private let isoDateFormatter = ISO8601DateFormatter()
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.dateFormat = "d MMMM"
-        return formatter
-    }()
-
     init(
         networkClient: NetworkClientProtocol,
         fromStation: String,
@@ -74,19 +63,23 @@ struct SearchRoutesView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
 
-            if viewModel.isLoading {
+            switch viewModel.state {
+            case .idle, .loading:
                 Spacer()
                 ProgressView()
                 Spacer()
-            } else if let error = viewModel.error {
+            case .loaded:
+                if viewModel.filteredRoutes.isEmpty{
+                    emptyState
+                } else {
+                    routesContent
+                }
+            case .error(let error):
                 NetworkErrorView(
                     errorType: error == .network ? .network : .server
                 )
-            } else if viewModel.filteredRoutes.isEmpty {
-                emptyState
-            } else {
-                routesContent
             }
+
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .toolbar(.hidden, for: .tabBar)
@@ -148,7 +141,7 @@ struct SearchRoutesView: View {
                         Circle()
                             .fill(Color.ypRed)
                             .frame(width: 8, height: 8)
-                            .opacity(filtersAreActive ? 1 : 0)
+                            .opacity(viewModel.filtersAreActive ? 1 : 0)
                     }
                     .frame(height: 60)
                     .frame(maxWidth: .infinity)
@@ -192,7 +185,7 @@ struct SearchRoutesView: View {
 
                 Spacer()
 
-                Text(formatDate(route.arrival))
+                Text(viewModel.formatDate(route.arrival))
                     .font(.regular12)
                     .foregroundStyle(Color.ypBlackDay)
                     .padding(.trailing, -8)
@@ -205,7 +198,7 @@ struct SearchRoutesView: View {
 
             HStack(spacing: 8) {
 
-                Text(formatTime(route.departure))
+                Text(viewModel.formatTime(route.departure))
                     .font(.regular17)
                     .foregroundStyle( Color.ypBlackDay)
                     .frame(minWidth: 48, alignment: .leading)
@@ -215,7 +208,7 @@ struct SearchRoutesView: View {
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
 
-                Text(formatDuration(route.totalDuration))
+                Text(viewModel.formatDuration(route.totalDuration))
                     .font(.regular12)
                     .foregroundStyle(Color.ypBlackDay)
                     .fixedSize()
@@ -225,7 +218,7 @@ struct SearchRoutesView: View {
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
 
-                Text(formatTime(route.arrival))
+                Text(viewModel.formatTime(route.arrival))
                     .font(.regular17)
                     .foregroundStyle(Color.ypBlackDay)
                     .frame(minWidth: 48, alignment: .trailing)
@@ -292,7 +285,7 @@ struct SearchRoutesView: View {
                     Circle()
                         .fill(Color.ypRed)
                         .frame(width: 8, height: 8)
-                        .opacity(filtersAreActive ? 1 : 0)
+                        .opacity(viewModel.filtersAreActive ? 1 : 0)
                 }
                 .frame(height: 60)
                 .frame(maxWidth: .infinity)
@@ -316,67 +309,6 @@ struct SearchRoutesView: View {
 
     private func specifyTime() {
         onShowFilters()
-    }
-
-    // MARK: - Time
-
-    private func formatTime(
-        _ dateString: String
-    ) -> String {
-        guard let timeStart = dateString.firstIndex(of: "T") else {
-            return dateString
-        }
-
-        let time = dateString[dateString.index(after: timeStart)...]
-
-        return String(time.prefix(5))
-    }
-
-    // MARK: - Date
-
-    private func formatDate(
-        _ dateString: String
-    ) -> String {
-
-        guard let date = isoDateFormatter.date(from: dateString) else {
-            return ""
-        }
-
-        return dateFormatter.string(from: date)
-    }
-
-    // MARK: - Duration
-
-    private func formatDuration(
-        _ seconds: Int?
-    ) -> String {
-
-        guard let seconds else {
-            return ""
-        }
-
-        let hours = seconds / 3600
-
-        let word: String
-
-        if hours % 100 >= 11 &&
-            hours % 100 <= 14 {
-
-            word = "часов"
-
-        } else {
-
-            switch hours % 10 {
-            case 1:
-                word = "час"
-            case 2...4:
-                word = "часа"
-            default:
-                word = "часов"
-            }
-        }
-
-        return "\(hours) \(word)"
     }
 }
 

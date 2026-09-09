@@ -13,15 +13,19 @@ import Foundation
 final class UserAgreementViewModel {
     let urlString = "https://yandex.ru/legal/practicum_offer"
 
-    var isLoading = true
-    var hasError = false
+    enum State {
+        case loading
+        case loaded
+        case error
+    }
+
+    var state: State = .loading
 
     var url: URL? {
         URL(string: urlString)
     }
 
     func retry() {
-        isLoading = true
-        hasError = false
+        state = .loading
     }
 }

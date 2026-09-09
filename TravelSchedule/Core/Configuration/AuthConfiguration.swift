@@ -8,7 +8,9 @@
 import Foundation
 
 enum Constants {
-    static let apiKey = ""
+    static let apiKey = Bundle.main.object(
+        forInfoDictionaryKey: "YANDEX_API_KEY"
+    ) as? String ?? ""
 }
 
 struct AuthConfiguration {

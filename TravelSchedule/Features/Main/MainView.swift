@@ -27,6 +27,12 @@ struct MainView: View {
     init(apiServices: APIServiceContainer, isDarkMode: Binding<Bool>) {
         self.apiServices = apiServices
         self._isDarkMode = isDarkMode
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.shadowColor = .ypBlackDay.withAlphaComponent(0.3)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 
     var body: some View {
